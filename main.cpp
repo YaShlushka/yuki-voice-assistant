@@ -1,4 +1,6 @@
 #include "miniaudio.h"
+#include <whisper.h>
+
 #include <iostream>
 #include <vector>
 #include <cstdint>

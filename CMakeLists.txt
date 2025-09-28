@@ -7,7 +7,11 @@ set(SOURCE_FILES
 	main.cpp miniaudio.c
 )
 
+# set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
+target_include_directories(${PROJECT_NAME} PRIVATE "whisper.cpp/include")
+target_include_directories(${PROJECT_NAME} PRIVATE "whisper.cpp/ggml/include")
 target_link_libraries(${PROJECT_NAME} PRIVATE ${SYSTEM_LIBS})
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
