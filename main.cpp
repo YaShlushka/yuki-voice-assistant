@@ -1,29 +1,40 @@
 #include "miniaudio.h"
-#include <whisper.h>
+#include "recognize_model.h"
 
 #include <iostream>
 #include <vector>
 #include <cstdint>
 
-std::vector<int16_t> audio_buffer;
+std::vector<float> audio_buffer;
 uint16_t last_speak_time = 0;
 bool is_speak = false;
+bool is_quiet = true;
+
+RecognizeModel recognizer("/home/paderinee/Documents/Code/yuki-voice-assistant/models/ggml-base.bin");
 
 void data_callback(ma_device* pDevice, void* pOutput, const void* pInput, ma_uint32 frame_count) {
 	const int16_t* input_samples = (const int16_t*)pInput;
 
 	for (ma_uint32 i = 0; i < frame_count; i++) {
-		audio_buffer.push_back(input_samples[i]);
+		audio_buffer.push_back(float(input_samples[i]) / 32768.0f);
 
 		last_speak_time = input_samples[i] > 1000 ? 0 : (last_speak_time > 5000 ? last_speak_time : last_speak_time + 1);
 		is_speak = last_speak_time < 5001 ? true : false;
+		is_quiet = last_speak_time < 5001 ? false : is_quiet;
 	}
 
-	if(!is_speak) {
+	if(!is_speak && is_quiet) {
 		audio_buffer.clear();
 	}
 
-	std::cout << audio_buffer.size() << std::endl;
+	if(!is_speak && !is_quiet) {
+		std::cout << audio_buffer.size() << std::endl;
+		std::cout << recognizer.RecognizeAudio(std::move(audio_buffer)) << std::endl;
+		audio_buffer = {};
+		is_quiet = true;
+	}
+
+	// std::cout << last_speak_time << " " << audio_buffer.size() << std::endl;
 }
 
 int main() {
@@ -31,12 +42,13 @@ int main() {
 	ma_device device;
 
 	config.capture.format = ma_format_s16; // 16 bit
+	// config.capture.format = ma_format_f32;
 	config.capture.channels = 1;				// mono
 	config.sampleRate = 16000;					// 16 kHz
 	config.dataCallback = data_callback;	// callback function
 
 	if (ma_device_init(NULL, &config, &device) != MA_SUCCESS) {
-		return -1; // Failed to initialize the device.
+		return -1;
 	}
 
 	ma_device_start(&device); // by default device is sleeping
