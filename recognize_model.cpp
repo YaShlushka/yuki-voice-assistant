@@ -1,7 +1,6 @@
 #include "recognize_model.h"
 
 #include <stdexcept>
-#include <iostream>
 
 RecognizeModel::RecognizeModel(const char* model)
 	 : ctx_params_{/*.use_gpu              =*/false,
@@ -37,8 +36,6 @@ RecognizeModel::~RecognizeModel() {
 }
 
 std::string RecognizeModel::RecognizeAudio(std::vector<float> buf) {
-	// buf.resize((buf.size() / 16000 + 1) * 16000);
-	std::cout << buf.size() << std::endl;
 	int ret = whisper_full(ctx_, params_, buf.data(), (int)buf.size());
 	if (ret != 0) {
 		return "Error";

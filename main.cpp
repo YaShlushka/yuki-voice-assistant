@@ -28,7 +28,6 @@ void data_callback(ma_device* pDevice, void* pOutput, const void* pInput, ma_uin
 	}
 
 	if(!is_speak && !is_quiet) {
-		std::cout << audio_buffer.size() << std::endl;
 		std::cout << recognizer.RecognizeAudio(std::move(audio_buffer)) << std::endl;
 		audio_buffer = {};
 		is_quiet = true;

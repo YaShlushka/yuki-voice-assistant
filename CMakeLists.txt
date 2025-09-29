@@ -5,7 +5,6 @@ set(CMAKE_CXX_STANDARD 20)
 
 set(SOURCE_FILES
 	main.cpp miniaudio.c recognize_model.cpp
-	# whisper.cpp/src/whisper.cpp
 )
 
 # set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
