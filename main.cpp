@@ -1,3 +1,4 @@
+// for check with clang-tidy use clang-tidy main.cpp recognize_model.cpp -- -std=c++20
 #include "miniaudio.h"
 #include "recognize_model.h"
 
@@ -6,7 +7,7 @@
 #include <cstdint>
 
 std::vector<float> audio_buffer;
-uint16_t last_speak_time = 0;
+uint16_t last_speak_time = 5001;
 bool is_speak = false;
 bool is_quiet = true;
 
@@ -32,8 +33,6 @@ void data_callback(ma_device* pDevice, void* pOutput, const void* pInput, ma_uin
 		audio_buffer = {};
 		is_quiet = true;
 	}
-
-	// std::cout << last_speak_time << " " << audio_buffer.size() << std::endl;
 }
 
 int main() {
@@ -41,7 +40,6 @@ int main() {
 	ma_device device;
 
 	config.capture.format = ma_format_s16; // 16 bit
-	// config.capture.format = ma_format_f32;
 	config.capture.channels = 1;				// mono
 	config.sampleRate = 16000;					// 16 kHz
 	config.dataCallback = data_callback;	// callback function
