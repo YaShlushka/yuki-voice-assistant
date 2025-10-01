@@ -12,3 +12,5 @@ struct Request {
 	RequestType type;
 	std::string arg;
 };
+
+void ApplyRequest(Request request);
