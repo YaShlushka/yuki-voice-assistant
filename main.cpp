@@ -3,6 +3,7 @@
 #include "recognize_model.h"
 
 #include <iostream>
+#include <iterator>
 #include <vector>
 #include <cstdint>
 
@@ -11,7 +12,7 @@ uint16_t last_speak_time = 5001;
 bool is_speak = false;
 bool is_quiet = true;
 
-RecognizeModel recognizer("/home/paderinee/Documents/Code/yuki-voice-assistant/models/ggml-base.bin");
+RecognizeModel recognizer("/home/paderinee/Documents/Code/yuki-voice-assistant/models/ggml-small.bin");
 
 void data_callback(ma_device* pDevice, void* pOutput, const void* pInput, ma_uint32 frame_count) {
 	const int16_t* input_samples = (const int16_t*)pInput;
@@ -19,7 +20,7 @@ void data_callback(ma_device* pDevice, void* pOutput, const void* pInput, ma_uin
 	for (ma_uint32 i = 0; i < frame_count; i++) {
 		audio_buffer.push_back(float(input_samples[i]) / 32768.0f);
 
-		last_speak_time = input_samples[i] > 1000 ? 0 : (last_speak_time > 5000 ? last_speak_time : last_speak_time + 1);
+		last_speak_time = input_samples[i] > 2000 ? 0 : (last_speak_time > 5000 ? last_speak_time : last_speak_time + 1);
 		is_speak = last_speak_time < 5001 ? true : false;
 		is_quiet = last_speak_time < 5001 ? false : is_quiet;
 	}
