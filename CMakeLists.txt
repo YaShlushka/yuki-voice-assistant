@@ -4,15 +4,16 @@ project(yuki-voice-assistant C CXX)
 set(CMAKE_CXX_STANDARD 20)
 
 set(SOURCE_FILES
-	main.cpp miniaudio.c recognize_model.cpp
+	main.cpp recognize_model.cpp lib/miniaudio/miniaudio.c lib/json/json.cpp
 )
 
 # set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-add_subdirectory(whisper.cpp)
+add_subdirectory(lib/whisper.cpp)
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
-target_include_directories(${PROJECT_NAME} PRIVATE "whisper.cpp/include")
-target_include_directories(${PROJECT_NAME} PRIVATE "whisper.cpp/ggml/include")
+target_include_directories(${PROJECT_NAME} PRIVATE "lib/whisper.cpp/include")
+target_include_directories(${PROJECT_NAME} PRIVATE "lib/whisper.cpp/ggml/include")
+target_include_directories(${PROJECT_NAME} PRIVATE "lib")
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 	target_link_libraries(${PROJECT_NAME} PRIVATE dl pthread m)
