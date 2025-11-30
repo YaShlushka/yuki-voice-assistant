@@ -41,6 +41,5 @@
 *.dwo
 
 build/
-whisper.cpp/
 models/
 .cache/
