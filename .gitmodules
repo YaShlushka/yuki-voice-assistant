@@ -10,3 +10,6 @@
 [submodule "lib/catch2"]
 	path = lib/catch2
 	url = https://github.com/catchorg/Catch2
+[submodule "lib/vosk-api"]
+	path = lib/vosk-api
+	url = https://github.com/alphacep/vosk-api

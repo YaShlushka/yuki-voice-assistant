@@ -1,6 +1,6 @@
 #pragma once
 
-#include <whisper.h>
+#include <whisper.cpp/include/whisper.h>
 
 #include <vector>
 #include <string>
