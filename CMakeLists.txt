@@ -23,17 +23,20 @@ else()
 	set(SYSTEM_LIBS)
 endif()
 
-add_executable(vosk_recognize_test
+add_executable(recognize_test
 	tests/recognize_model_tests/vosk_api_recognize_model.cpp
 	tests/recognize_model_tests/vosk_api_recognize_model.h
 	tests/recognize_model_tests/vosk_wav_recognize.h
+	tests/recognize_model_tests/whisper_recognize_model.cpp
+	tests/recognize_model_tests/whisper_recognize_model.h
+	tests/recognize_model_tests/whisper_wav_recognize.h
 	tests/recognize_model_tests/main.cpp
 	lib/json/json.cpp
 )
 
-target_include_directories(vosk_recognize_test PRIVATE "lib")
+target_include_directories(recognize_test PRIVATE "lib")
 
-target_link_libraries(vosk_recognize_test vosk)
+target_link_libraries(recognize_test vosk whisper)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE ${SYSTEM_LIBS})
 target_link_libraries(${PROJECT_NAME} PRIVATE whisper)

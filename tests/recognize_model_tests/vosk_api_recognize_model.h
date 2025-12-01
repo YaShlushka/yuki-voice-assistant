@@ -11,7 +11,7 @@ namespace vosk {
 
 class RecognizeModel {
  public:
-	explicit RecognizeModel(const char* model_path);
+	explicit RecognizeModel(const std::string& model_path);
 	~RecognizeModel();
 
 	std::string RecognizeAudio(const std::vector<int16_t>& buf);
