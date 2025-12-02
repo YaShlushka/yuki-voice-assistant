@@ -6,10 +6,11 @@ set(CMAKE_CXX_STANDARD 20)
 set(SOURCE_FILES
 	src/main.cpp src/recognize_model.cpp lib/miniaudio/miniaudio.c lib/json/json.cpp
 )
-
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 # set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_subdirectory(lib/whisper.cpp)
+add_subdirectory(lib/catch2)
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 target_include_directories(${PROJECT_NAME} PRIVATE "lib")
 
@@ -34,9 +35,13 @@ add_executable(recognize_test
 	lib/json/json.cpp
 )
 
+add_executable(unit_tests
+	tests/unit_tests.cpp
+)
+
 target_include_directories(recognize_test PRIVATE "lib")
+target_include_directories(unit_tests PRIVATE "lib/catch2/include")
 
 target_link_libraries(recognize_test vosk whisper)
-
-target_link_libraries(${PROJECT_NAME} PRIVATE ${SYSTEM_LIBS})
-target_link_libraries(${PROJECT_NAME} PRIVATE whisper)
+target_link_libraries(unit_tests Catch2::Catch2WithMain)
+target_link_libraries(${PROJECT_NAME} PRIVATE ${SYSTEM_LIBS} whisper)
