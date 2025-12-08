@@ -1,17 +1,17 @@
 #pragma once
 
+#include <climits>
 #include <string>
 
 enum class RequestType {
-	OPEN_WEB_SITE = 0,
-	OPEN_APPLICATION,
+	START = 0,
 	SEARCH_ON_THE_INTERNET,
 	TURN_OFF_PC,
 	SCREEN_LOCK,
-	STOP,
 	CHANGE_KB_LAYOUT,
+	STOP,
 	OPEN_SETTINGS,
-	UNKNOWN
+	UNKNOWN = INT_MAX
 };
 
 struct Request {
