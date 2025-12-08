@@ -28,7 +28,7 @@ RecognizeModel::RecognizeModel(const char* model)
 	// params_.translate = false;
 	// params_.no_context = false;
 	params_.language = "ru";
-	// params_.n_threads = 4;
+	params_.n_threads = 6;
 }
 
 RecognizeModel::~RecognizeModel() {

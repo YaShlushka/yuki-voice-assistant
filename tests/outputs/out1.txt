@@ -1,12 +1,3 @@
-LOG (VoskAPI:ReadDataFiles():model.cc:223) Decoding params beam=10 max-active=3000 lattice-beam=2
-LOG (VoskAPI:ReadDataFiles():model.cc:226) Silence phones 1:2:3:4:5:6:7:8:9:10
-LOG (VoskAPI:RemoveOrphanNodes():nnet-nnet.cc:948) Removed 0 orphan nodes.
-LOG (VoskAPI:RemoveOrphanComponents():nnet-nnet.cc:847) Removing 0 orphan components.
-LOG (VoskAPI:ReadDataFiles():model.cc:259) Loading i-vector extractor from models/vosk-model-small-ru-0.22/ivector/final.ie
-LOG (VoskAPI:ComputeDerivedVars():ivector-extractor.cc:183) Computing derived variables for iVector extractor
-LOG (VoskAPI:ComputeDerivedVars():ivector-extractor.cc:204) Done.
-LOG (VoskAPI:ReadDataFiles():model.cc:295) Loading HCL and G from models/vosk-model-small-ru-0.22/graph/HCLr.fst models/vosk-model-small-ru-0.22/graph/Gr.fst
-LOG (VoskAPI:ReadDataFiles():model.cc:321) Loading winfo models/vosk-model-small-ru-0.22/graph/phones/word_boundary.int
 открой браузер
 открой ютуб
 открой телеграмм
