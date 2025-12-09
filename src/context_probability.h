@@ -7,22 +7,19 @@
 #include "request.h"
 
 struct Node;
-
-// struct NodeHasher {
-// 	size_t operator()(const std::shared_ptr<Node>& node) const;
-// };
-
-// bool operator==(const std::shared_ptr<Node>& v1, const std::shared_ptr<Node>& v2);
+using NodeTree = std::unordered_map<std::string, std::shared_ptr<Node>>;
 
 struct Node {
 	double confidence;
 	RequestType type;
 
-	std::unordered_map<std::string, std::shared_ptr<Node>> childs;
+	NodeTree childs;
 };
 
 class ContextProbability {
  public:
+	void TrainGraph(const std::string& file);
+
  private:
-	std::unordered_map<std::string, Node> nodes_;
+	NodeTree nodes_;
 };
