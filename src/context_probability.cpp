@@ -78,12 +78,25 @@ void ContextProbability::TrainGraph(const std::string& file) {
 	for (const Line& line : lines) {
 		std::shared_ptr<NodeTree> cur = std::make_shared<NodeTree>(graph);
 		std::vector<std::string_view> words = ParseStringBySpaces(line.command);
-		for (std::string_view word : words) {
-			std::string word_str = std::string(word);
+		for (size_t i = 0; i < words.size(); ++i) {
+			std::string word_str = std::string(words[i]);
 			if (cur->contains(word_str)) {
 				cur = std::make_shared<NodeTree>(cur->at(word_str)->childs);
 			} else {
+				auto new_node = std::make_shared<Node>();
+				new_node->confidence = 0.0;
+				new_node->type = RequestType::UNKNOWN;
+				new_node->childs = NodeTree();
 
+				// FINISH WRITING!!!!!!
+				if (i == words.size() - 1) {
+					cur->at("") = std::make_shared<Node>();
+					cur->at("")->type = static_cast<RequestType>(line.id);
+					cur->at("")->confidence = 1.0;
+				}
+
+				cur->emplace(word_str, new_node);
+				cur = std::make_shared<NodeTree>(new_node->childs);
 			}
 		}
 	}
