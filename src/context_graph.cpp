@@ -1,4 +1,4 @@
-#include "context_probability.h"
+#include "context_graph.h"
 
 #include <filesystem>
 #include <fstream>
@@ -68,7 +68,7 @@ std::vector<Line> ReadCSV(const std::string& file) {
 	return result;
 }
 
-void ContextProbability::TrainGraph(const std::string& file) {
+void ContextGraph::TrainGraph(const std::string& file) {
 	NodeTree graph;
 	std::vector<Line> lines = ReadCSV(file);
 	if (lines.empty()) {
@@ -84,20 +84,18 @@ void ContextProbability::TrainGraph(const std::string& file) {
 				cur = std::make_shared<NodeTree>(cur->at(word_str)->childs);
 			} else {
 				auto new_node = std::make_shared<Node>();
-				new_node->confidence = 0.0;
-				new_node->type = RequestType::UNKNOWN;
+				new_node->type = (i == words.size() - 1) ? (static_cast<RequestType>(line.id))
+																	  : (RequestType::UNKNOWN);
 				new_node->childs = NodeTree();
+				new_node->has_arg = line.has_arg;
 
-				// FINISH WRITING!!!!!!
-				if (i == words.size() - 1) {
-					cur->at("") = std::make_shared<Node>();
-					cur->at("")->type = static_cast<RequestType>(line.id);
-					cur->at("")->confidence = 1.0;
-				}
-
-				cur->emplace(word_str, new_node);
+				cur->emplace(std::move(word_str), new_node);
 				cur = std::make_shared<NodeTree>(new_node->childs);
 			}
 		}
 	}
+
+	graph_ = std::move(graph);
 }
+
+Request ContextGraph::ParsePhrase(const std::string& str) {}

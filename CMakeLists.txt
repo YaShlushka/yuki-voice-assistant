@@ -7,8 +7,8 @@ set(SOURCE_FILES
 	src/main.cpp src/recognize_model.cpp lib/miniaudio/miniaudio.c lib/json/json.cpp
 )
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-# set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+add_library(context_graph_lib STATIC src/context_graph.h src/context_graph.cpp src/request.h)
 add_subdirectory(lib/whisper.cpp)
 add_subdirectory(lib/catch2)
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
