@@ -15,7 +15,7 @@ struct Line {
 	bool has_arg = true;
 };
 
-std::vector<std::string_view> ParseStringBySpaces(std::string_view str) {
+std::vector<std::string_view> ParseString(std::string_view str) {
 	size_t begin = 0;
 	size_t end = 0;
 	std::vector<std::string_view> result;
@@ -76,12 +76,12 @@ void ContextGraph::TrainGraph(const std::string& file) {
 	}
 
 	for (const Line& line : lines) {
-		std::shared_ptr<NodeTree> cur = std::make_shared<NodeTree>(graph);
-		std::vector<std::string_view> words = ParseStringBySpaces(line.command);
+		NodeTree* cur = &graph;
+		std::vector<std::string_view> words = ParseString(line.command);
 		for (size_t i = 0; i < words.size(); ++i) {
 			std::string word_str = std::string(words[i]);
 			if (cur->contains(word_str)) {
-				cur = std::make_shared<NodeTree>(cur->at(word_str)->childs);
+				cur = &cur->at(word_str)->childs;
 			} else {
 				auto new_node = std::make_shared<Node>();
 				new_node->type = (i == words.size() - 1) ? (static_cast<RequestType>(line.id))
@@ -90,7 +90,7 @@ void ContextGraph::TrainGraph(const std::string& file) {
 				new_node->has_arg = line.has_arg;
 
 				cur->emplace(std::move(word_str), new_node);
-				cur = std::make_shared<NodeTree>(new_node->childs);
+				cur = &new_node->childs;
 			}
 		}
 	}
@@ -98,4 +98,19 @@ void ContextGraph::TrainGraph(const std::string& file) {
 	graph_ = std::move(graph);
 }
 
-Request ContextGraph::ParsePhrase(const std::string& str) {}
+void ContextGraph::AddOftenMistakes(const std::string& file) {
+
+}
+
+Request ContextGraph::ParsePhrase(const std::string& phrase) {
+	Request req;
+	std::string str;
+	const std::string IGNORING_CHARS = ".!?,\"\'-:;";
+	for (char ch : phrase) {
+		if (IGNORING_CHARS.find(ch) != std::string::npos) {
+			str.push_back(std::tolower(ch));
+		}
+	}
+
+	std::vector<std::string_view> words = ParseString(str);
+}
