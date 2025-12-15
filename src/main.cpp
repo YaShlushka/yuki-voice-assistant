@@ -13,7 +13,7 @@ int main() {
 	config.capture.channels = 1;				// mono
 	config.sampleRate = 16000;					// 16 kHz
 	config.pUserData = &voice_assistant;
-	config.dataCallback = voice_assistant.MiniAudioCallback; // callback function
+	config.dataCallback = VoiceAssistant::MiniAudioCallback; // callback function
 
 	if (ma_device_init(NULL, &config, &device) != MA_SUCCESS) {
 		return -1;

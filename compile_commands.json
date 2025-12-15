@@ -1,7 +1,7 @@
 [
 {
 	"directory": "/home/paderinee/Documents/Code/yuki-voice-assistant",
-	"command": "g++ -I/home/paderinee/Documents/Code/yuki-voice-assistant/lib/whisper.cpp/include -I/home/paderinee/Documents/Code/yuki-voice-assistant/lib/whisper.cpp/ggml/include -I/home/paderinee/Documents/Code/yuki-voice-assistant/lib -std=c++20 -o CMakeFiles/yuki-voice-assistant.dir/main.cpp.o -c /home/paderinee/Documents/Code/yuki-voice-assistant/main.cpp",
+	"command": "g++ -I/home/paderinee/Documents/Code/yuki-voice-assistant/lib/whisper.cpp/include -I/home/paderinee/Documents/Code/yuki-voice-assistant/lib/whisper.cpp/ggml/include -I/home/paderinee/Documents/Code/yuki-voice-assistant/lib -I/home/paderinee/Documents/Code/yuki-voice-assistant/lib/rapidfuzz -std=c++20 -o CMakeFiles/yuki-voice-assistant.dir/main.cpp.o -c /home/paderinee/Documents/Code/yuki-voice-assistant/main.cpp",
 	"file": "/home/paderinee/Documents/Code/yuki-voice-assistant/main.cpp"
 }
 ]

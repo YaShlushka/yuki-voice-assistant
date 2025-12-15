@@ -4,14 +4,21 @@ project(yuki-voice-assistant C CXX)
 set(CMAKE_CXX_STANDARD 20)
 
 set(SOURCE_FILES
-	src/main.cpp src/recognize_model.cpp lib/miniaudio/miniaudio.c lib/json/json.cpp
+	src/main.cpp
+	src/recognize_model.cpp
+	src/voice_assistant.cpp
+	lib/miniaudio/miniaudio.c
+	lib/json/json.cpp
 )
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-add_library(context_graph_lib STATIC src/context_graph.h src/context_graph.cpp src/request.h)
 add_subdirectory(lib/whisper.cpp)
 add_subdirectory(lib/catch2)
+add_subdirectory(lib/rapidfuzz)
+
+add_library(context_graph_lib STATIC src/context_graph.h src/context_graph.cpp src/request.h)
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
+target_include_directories(context_graph_lib PRIVATE "lib" "lib/rapidfuzz")
 target_include_directories(${PROJECT_NAME} PRIVATE "lib")
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
@@ -35,13 +42,18 @@ add_executable(recognize_test
 	lib/json/json.cpp
 )
 
-add_executable(unit_tests
-	tests/unit_tests.cpp
+add_executable(rapidfuzz_check
+	tests/rapidfuzz_check.cpp
+)
+
+add_executable(context_graph_tests
+	tests/context_graph_tests.cpp
 )
 
 target_include_directories(recognize_test PRIVATE "lib")
-target_include_directories(unit_tests PRIVATE "lib/catch2/include")
+target_include_directories(rapidfuzz_check PRIVATE "lib" "lib/rapidfuzz")
 
 target_link_libraries(recognize_test vosk whisper)
-target_link_libraries(unit_tests Catch2::Catch2WithMain)
-target_link_libraries(${PROJECT_NAME} PRIVATE ${SYSTEM_LIBS} whisper)
+target_link_libraries(rapidfuzz_check rapidfuzz::rapidfuzz)
+target_link_libraries(context_graph_tests context_graph_lib Catch2::Catch2WithMain)
+target_link_libraries(${PROJECT_NAME} PRIVATE ${SYSTEM_LIBS} whisper rapidfuzz::rapidfuzz)

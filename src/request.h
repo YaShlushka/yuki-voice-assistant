@@ -4,7 +4,7 @@
 #include <string>
 
 enum class RequestType {
-	START = 0,
+	OPEN = 0,
 	SEARCH_ON_THE_INTERNET,
 	TURN_OFF_PC,
 	SCREEN_LOCK,
