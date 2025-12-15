@@ -4,7 +4,8 @@
 
 int main() {
 	VoiceAssistant voice_assistant(
-		 "/home/paderinee/Documents/Code/yuki-voice-assistant/models/ggml-small-q8_0.bin");
+		 "/home/paderinee/Documents/Code/yuki-voice-assistant/models/ggml-small-q8_0.bin",
+		 "data/context_training.csv", "data/often_mistakes.csv");
 
 	ma_device_config config = ma_device_config_init(ma_device_type_capture);
 	ma_device device;
