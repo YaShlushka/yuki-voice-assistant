@@ -21,6 +21,14 @@ class VoiceAssistant {
 
  private:
 	void ProcessAudio(ma_device* pDevice, void* pOutput, const void* pInput, ma_uint32 frame_count);
+	void ExecRequest(const Request& req) const;
+	void OpenReq(const Request& req) const;
+	void SearchReq(const Request& req) const;
+	void TurnOffReq(const Request& req) const;
+	void ScreenLockReq(const Request& req) const;
+	void ChangeKbLayoutReq(const Request& req) const;
+	void StopReq(const Request& req) const;
+	void OpenSettingsReq(const Request& req) const;
 
 	RecognizeModel recognizer;
 	ContextGraph ctx_graph_;
