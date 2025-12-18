@@ -1,8 +1,14 @@
 {
-	"YouTube": "https://www.youtube.com/",
-	"Google": "https://www.google.com/",
-	"GitHub": "https://github.com/",
-	"WhatsApp": "https://web.whatsapp.com/",
-	"Reddit": "https://www.reddit.com/",
-	"Google Mail": "https://mail.google.com/"
+	"youtube": "https://www.youtube.com/",
+	"google": "https://www.google.com/",
+	"gitHub": "https://github.com/",
+	"whatsapp": "https://web.whatsapp.com/",
+	"reddit": "https://www.reddit.com/",
+	"google mail": "https://mail.google.com/",
+	"госуслуги": "https://www.gosuslugi.ru/",
+	"авито": "https://www.avito.ru/",
+	"tik tok": "https://www.tiktok.com/",
+	"twitch": "https://www.twitch.tv/",
+	"faceit": "https://www.faceit.com/",
+	"кинопоиск": "https://www.kinopoisk.ru/"
 }
