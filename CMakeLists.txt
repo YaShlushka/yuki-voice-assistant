@@ -7,6 +7,7 @@ set(SOURCE_FILES
 	src/main.cpp
 	src/recognize_model.cpp
 	src/voice_assistant.cpp
+	src/common.cpp
 	lib/miniaudio/miniaudio.c
 	lib/json/json.cpp
 )

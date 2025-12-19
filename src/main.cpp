@@ -3,9 +3,13 @@
 #include "voice_assistant.h"
 
 int main() {
-	VoiceAssistantInit va_init{.model = "models/ggml-small-q8_0.bin",
+	VoiceAssistantInit va_init{.model = "models/ggml-small.bin",
 										.ctx_file = "data/context_training.csv",
-										.often_mistakes = "data/often_mistakes.csv"};
+										.often_mistakes = "data/often_mistakes.csv",
+										.websites_links = "data/websites.json",
+										.apps_linux = "data/apps_linux.json",
+										.apps_windows = "data/apps_windows.json",
+										.apps_macos = "data/apps_macos.json"};
 	VoiceAssistant voice_assistant(va_init);
 
 	ma_device_config config = ma_device_config_init(ma_device_type_capture);

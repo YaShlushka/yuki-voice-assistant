@@ -11,8 +11,6 @@
 
 #include <json/json.h>
 
-namespace fs = std::filesystem;
-
 struct VoiceAssistantInit {
 	std::string model;
 	std::string ctx_file;
@@ -36,9 +34,7 @@ class VoiceAssistant {
 	void SearchReq(const std::string& arg) const;
 	void ShutdownReq() const;
 	void ScreenLockReq(const Request& req) const;
-	void ChangeKbLayoutReq(const Request& req) const;
 	void StopReq(const Request& req) const;
-	void OpenSettingsReq(const Request& req) const;
 
 	RecognizeModel recognizer;
 	ContextGraph ctx_graph_;
@@ -46,6 +42,6 @@ class VoiceAssistant {
 	uint16_t last_speak_time = 5001;
 	bool is_speak = false;
 	bool is_quiet = true;
-	json::Dict websites_;
-	json::Dict apps_;
+	const json::Dict* websites_;
+	const json::Dict* apps_;
 };

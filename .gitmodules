@@ -1,9 +1,6 @@
 [submodule "lib/whisper.cpp"]
 	path = lib/whisper.cpp
 	url = https://github.com/ggml-org/whisper.cpp
-[submodule "lib/json"]
-	path = lib/json
-	url = https://github.com/YaShlushka/cpp-json-library
 [submodule "lib/miniaudio"]
 	path = lib/miniaudio
 	url = https://github.com/mackron/miniaudio

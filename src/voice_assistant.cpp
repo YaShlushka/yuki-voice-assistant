@@ -1,9 +1,12 @@
 #include "voice_assistant.h"
 #include "common.h"
 #include "context_graph.h"
+#include "request.h"
 #include <rapidfuzz/rapidfuzz/fuzz.hpp>
 
 #include <iostream>
+
+namespace fs = std::filesystem;
 
 VoiceAssistant::VoiceAssistant(const VoiceAssistantInit& va_init)
 	 : recognizer(va_init.model.c_str()) {
@@ -29,7 +32,7 @@ VoiceAssistant::VoiceAssistant(const VoiceAssistantInit& va_init)
 	std::ifstream websites_ifs(websites_links);
 	const auto& web_links_json = json::Load(websites_ifs).GetRoot();
 	if (web_links_json.IsDict()) {
-		websites_ = web_links_json.AsDict();
+		websites_ = &web_links_json.AsDict();
 		websites_ifs.close();
 	} else {
 		throw std::runtime_error("Websites links root is not a dictionary");
@@ -56,7 +59,7 @@ VoiceAssistant::VoiceAssistant(const VoiceAssistantInit& va_init)
 	std::ifstream apps_ifs(apps_path);
 	const auto& apps_json = json::Load(apps_ifs).GetRoot();
 	if (apps_json.IsDict()) {
-		apps_ = apps_json.AsDict();
+		apps_ = &apps_json.AsDict();
 	} else {
 		throw std::runtime_error(os_name + " applications root is not a dictionary");
 	}
@@ -89,33 +92,56 @@ void VoiceAssistant::ProcessAudio(ma_device* pDevice, void* pOutput, const void*
 	}
 
 	if (!is_speak && !is_quiet) {
-		std::cout << recognizer.RecognizeAudio(std::move(audio_buffer)) << std::endl;
+		std::string req_str = recognizer.RecognizeAudio(std::move(audio_buffer));
+		std::cout << req_str << std::endl;
+		Request req = ctx_graph_.ParsePhrase(req_str);
+		ExecRequest(req);
 		audio_buffer = {};
 		is_quiet = true;
 	}
 }
 
-void VoiceAssistant::ExecRequest(const Request& req) const {}
+void VoiceAssistant::ExecRequest(const Request& req) const {
+	switch (req.type) {
+	case RequestType::OPEN:
+		OpenReq(req.arg);
+		break;
+	case RequestType::SEARCH_ON_THE_INTERNET:
+		SearchReq(req.arg);
+		break;
+	case RequestType::SHUTDOWN:
+		ShutdownReq();
+		break;
+	case RequestType::SCREEN_LOCK:
+		LockScreen();
+		break;
+	case RequestType::STOP:
+		ExitProgram();
+		break;
+	case RequestType::UNKNOWN:
+		return;
+	}
+}
 
 void VoiceAssistant::OpenReq(const std::string& arg) const {
-	if (websites_.contains(arg)) {
-		OpenWebSite(websites_.at(arg).AsString());
+	if (websites_->contains(arg)) {
+		OpenWebSite(websites_->at(arg).AsString());
 		return;
 	}
 
-	if (apps_.contains(arg)) {
-		OpenApplication(apps_.at(arg).AsString());
+	if (apps_->contains(arg)) {
+		OpenApplication(apps_->at(arg).AsString());
 		return;
 	}
 
-	for (const auto& web_pair : websites_) {
+	for (const auto& web_pair : *websites_) {
 		if (rapidfuzz::fuzz::ratio(arg, web_pair.first) >= ACCURANCY_PERCENT) {
 			OpenWebSite(web_pair.second.AsString());
 			return;
 		}
 	}
 
-	for (const auto& app_pair : apps_) {
+	for (const auto& app_pair : *apps_) {
 		if (rapidfuzz::fuzz::ratio(arg, app_pair.first) >= ACCURANCY_PERCENT) {
 			OpenWebSite(app_pair.second.AsString());
 			return;
@@ -127,7 +153,6 @@ void VoiceAssistant::SearchReq(const std::string& arg) const { SearchOnTheIntern
 
 void VoiceAssistant::ShutdownReq() const { Shutdown(); }
 
-void VoiceAssistant::ScreenLockReq(const Request& req) const {}
-void VoiceAssistant::ChangeKbLayoutReq(const Request& req) const {}
+void VoiceAssistant::ScreenLockReq(const Request& req) const { LockScreen(); }
+
 void VoiceAssistant::StopReq(const Request& req) const { ExitProgram(); }
-void VoiceAssistant::OpenSettingsReq(const Request& req) const {}

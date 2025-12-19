@@ -13,16 +13,12 @@ struct StringMaker<RequestType> {
 			return "OPEN";
 		case RequestType::SEARCH_ON_THE_INTERNET:
 			return "SEARCH_ON_THE_INTERNET";
-		case RequestType::TURN_OFF_PC:
-			return "TURN_OFF_PC";
+		case RequestType::SHUTDOWN:
+			return "SHUTDOWN";
 		case RequestType::SCREEN_LOCK:
 			return "SCREEN_LOCK";
-		case RequestType::CHANGE_KB_LAYOUT:
-			return "CHANGE_KB_LAYOUT";
 		case RequestType::STOP:
 			return "STOP";
-		case RequestType::OPEN_SETTINGS:
-			return "OPEN_SETTINGS";
 		case RequestType::UNKNOWN:
 			return "UNKNOWN";
 		default:
