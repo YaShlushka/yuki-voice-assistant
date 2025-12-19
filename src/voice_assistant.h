@@ -1,15 +1,13 @@
 #pragma once
 
 #include <cstdint>
-#include <filesystem>
-#include <fstream>
 #include <vector>
 
 #include "context_graph.h"
 #include "miniaudio/miniaudio.h"
 #include "recognize_model.h"
 
-#include <json/json.h>
+#include <json/include/nlohmann/json.hpp>
 
 struct VoiceAssistantInit {
 	std::string model;
@@ -42,6 +40,6 @@ class VoiceAssistant {
 	uint16_t last_speak_time = 5001;
 	bool is_speak = false;
 	bool is_quiet = true;
-	const json::Dict* websites_;
-	const json::Dict* apps_;
+	std::unordered_map<std::string, std::string> websites_;
+	std::unordered_map<std::string, std::string> apps_;
 };

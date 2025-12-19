@@ -4,9 +4,13 @@
 #include "request.h"
 #include <rapidfuzz/rapidfuzz/fuzz.hpp>
 
+#include <filesystem>
+#include <fstream>
 #include <iostream>
 
 namespace fs = std::filesystem;
+
+using Json = nlohmann::json;
 
 VoiceAssistant::VoiceAssistant(const VoiceAssistantInit& va_init)
 	 : recognizer(va_init.model.c_str()) {
@@ -30,10 +34,11 @@ VoiceAssistant::VoiceAssistant(const VoiceAssistantInit& va_init)
 	ctx_graph_.AddOftenMistakes(va_init.often_mistakes);
 
 	std::ifstream websites_ifs(websites_links);
-	const auto& web_links_json = json::Load(websites_ifs).GetRoot();
-	if (web_links_json.IsDict()) {
-		websites_ = &web_links_json.AsDict();
-		websites_ifs.close();
+	const auto& web_links_json = Json::parse(websites_ifs);
+	if (web_links_json.is_object()) {
+		for (auto& [key, value] : web_links_json.items()) {
+			websites_[key] = value.get<std::string>();
+		}
 	} else {
 		throw std::runtime_error("Websites links root is not a dictionary");
 	}
@@ -57,9 +62,11 @@ VoiceAssistant::VoiceAssistant(const VoiceAssistantInit& va_init)
 	}
 
 	std::ifstream apps_ifs(apps_path);
-	const auto& apps_json = json::Load(apps_ifs).GetRoot();
-	if (apps_json.IsDict()) {
-		apps_ = &apps_json.AsDict();
+	const auto& apps_json = Json::parse(apps_ifs);
+	if (apps_json.is_object()) {
+		for (auto& [key, value] : apps_json.items()) {
+			apps_[key] = value.get<std::string>();
+		}
 	} else {
 		throw std::runtime_error(os_name + " applications root is not a dictionary");
 	}
@@ -124,26 +131,26 @@ void VoiceAssistant::ExecRequest(const Request& req) const {
 }
 
 void VoiceAssistant::OpenReq(const std::string& arg) const {
-	if (websites_->contains(arg)) {
-		OpenWebSite(websites_->at(arg).AsString());
+	if (websites_.contains(arg)) {
+		OpenWebSite(websites_.at(arg));
 		return;
 	}
 
-	if (apps_->contains(arg)) {
-		OpenApplication(apps_->at(arg).AsString());
+	if (apps_.contains(arg)) {
+		OpenApplication(apps_.at(arg));
 		return;
 	}
 
-	for (const auto& web_pair : *websites_) {
+	for (const auto& web_pair : websites_) {
 		if (rapidfuzz::fuzz::ratio(arg, web_pair.first) >= ACCURANCY_PERCENT) {
-			OpenWebSite(web_pair.second.AsString());
+			OpenWebSite(web_pair.second);
 			return;
 		}
 	}
 
-	for (const auto& app_pair : *apps_) {
+	for (const auto& app_pair : apps_) {
 		if (rapidfuzz::fuzz::ratio(arg, app_pair.first) >= ACCURANCY_PERCENT) {
-			OpenWebSite(app_pair.second.AsString());
+			OpenWebSite(app_pair.second);
 			return;
 		}
 	}

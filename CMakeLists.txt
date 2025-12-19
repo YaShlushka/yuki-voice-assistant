@@ -1,6 +1,13 @@
 cmake_minimum_required(VERSION 3.14)
 project(yuki-voice-assistant C CXX)
 
+add_subdirectory(lib/whisper.cpp)
+add_subdirectory(lib/catch2)
+add_subdirectory(lib/rapidfuzz)
+add_subdirectory(lib/json)
+
+find_package(nlohmann_json 3.12.0 REQUIRED)
+
 set(CMAKE_CXX_STANDARD 20)
 
 set(SOURCE_FILES
@@ -9,13 +16,8 @@ set(SOURCE_FILES
 	src/voice_assistant.cpp
 	src/common.cpp
 	lib/miniaudio/miniaudio.c
-	lib/json/json.cpp
 )
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-
-add_subdirectory(lib/whisper.cpp)
-add_subdirectory(lib/catch2)
-add_subdirectory(lib/rapidfuzz)
 
 add_library(context_graph_lib STATIC src/context_graph.h src/context_graph.cpp src/request.h)
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
@@ -40,7 +42,6 @@ add_executable(recognize_test
 	tests/recognize_model_tests/whisper_recognize_model.h
 	tests/recognize_model_tests/whisper_wav_recognize.h
 	tests/recognize_model_tests/main.cpp
-	lib/json/json.cpp
 )
 
 add_executable(rapidfuzz_check
@@ -54,7 +55,7 @@ add_executable(context_graph_tests
 target_include_directories(recognize_test PRIVATE "lib")
 target_include_directories(rapidfuzz_check PRIVATE "lib" "lib/rapidfuzz")
 
-target_link_libraries(recognize_test vosk whisper)
+target_link_libraries(recognize_test vosk whisper nlohmann_json::nlohmann_json)
 target_link_libraries(rapidfuzz_check rapidfuzz::rapidfuzz)
 target_link_libraries(context_graph_tests context_graph_lib Catch2::Catch2WithMain)
-target_link_libraries(${PROJECT_NAME} PRIVATE ${SYSTEM_LIBS} whisper rapidfuzz::rapidfuzz context_graph_lib)
+target_link_libraries(${PROJECT_NAME} PRIVATE ${SYSTEM_LIBS} whisper rapidfuzz::rapidfuzz context_graph_lib nlohmann_json::nlohmann_json)
