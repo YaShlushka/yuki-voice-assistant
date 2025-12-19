@@ -3,9 +3,10 @@
 #include "voice_assistant.h"
 
 int main() {
-	VoiceAssistant voice_assistant(
-		 "/home/paderinee/Documents/Code/yuki-voice-assistant/models/ggml-small-q8_0.bin",
-		 "data/context_training.csv", "data/often_mistakes.csv");
+	VoiceAssistantInit va_init{.model = "models/ggml-small-q8_0.bin",
+										.ctx_file = "data/context_training.csv",
+										.often_mistakes = "data/often_mistakes.csv"};
+	VoiceAssistant voice_assistant(va_init);
 
 	ma_device_config config = ma_device_config_init(ma_device_type_capture);
 	ma_device device;

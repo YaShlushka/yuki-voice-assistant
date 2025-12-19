@@ -33,8 +33,8 @@ class VoiceAssistant {
 	void ProcessAudio(ma_device* pDevice, void* pOutput, const void* pInput, ma_uint32 frame_count);
 	void ExecRequest(const Request& req) const;
 	void OpenReq(const std::string& arg) const;
-	void SearchReq(const Request& req) const;
-	void TurnOffReq(const Request& req) const;
+	void SearchReq(const std::string& arg) const;
+	void ShutdownReq() const;
 	void ScreenLockReq(const Request& req) const;
 	void ChangeKbLayoutReq(const Request& req) const;
 	void StopReq(const Request& req) const;
@@ -46,8 +46,6 @@ class VoiceAssistant {
 	uint16_t last_speak_time = 5001;
 	bool is_speak = false;
 	bool is_quiet = true;
-	json::Dict websites_links_;
-	json::Dict apps_linux_;
-	json::Dict apps_windows_;
-	json::Dict apps_macos_;
+	json::Dict websites_;
+	json::Dict apps_;
 };

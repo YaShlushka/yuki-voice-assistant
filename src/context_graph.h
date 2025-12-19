@@ -6,6 +6,8 @@
 
 #include "request.h"
 
+constexpr double ACCURANCY_PERCENT = 70;
+
 struct Node;
 using NodePtr = std::shared_ptr<Node>;
 using NodeTree = std::unordered_map<std::string, NodePtr>;

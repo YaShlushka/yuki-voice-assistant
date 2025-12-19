@@ -15,7 +15,7 @@ void OpenWebSite(const std::string& url) {
 #elif defined(__APPLE__)
 	std::string command = "open " + url;
 	system(command.c_str());
-#else
+#elif defined(__linux__) || defined(__linux)
 	std::string command = "xdg-open \"" + url + "\"";
 	system(command.c_str());
 #endif
@@ -26,22 +26,36 @@ void OpenApplication(const std::string& name) {
 	std::string command = "start " + name;
 #elif defined(__APPLE__)
 	std::string command = "open -a " + name;
-#else
-	std::string command = name + " &";
+#elif defined(__linux__) || defined(__linux)
+	std::string command = name;
 #endif
 	system(command.c_str());
 }
 
 void SearchOnTheInternet(const std::string& request) {
 	std::string url = "https://www.google.com/search?q=";
-	for(char ch : request) {
-		switch(ch) {
-			case ' ':
-				url += '+';
-			default:
-				url += "%" + CharToHex(ch);
+	for (char ch : request) {
+		switch (ch) {
+		case ' ':
+			url += '+';
+		default:
+			url += "%" + CharToHex(ch);
 		}
 	}
 
 	OpenWebSite(url);
+}
+
+void Shutdown() {
+#if defined(_WIN32) || defined(_WIN64)
+	system("shutdown /s /t 0");
+#elif defined(__APPLE__)
+	system("sudo shutdown -h now");
+#elif defined(__linux__) || defined(__linux)
+	system("sudo shutdown -h now");
+#endif
+}
+
+void ExitProgram(int code) {
+	exit(code);
 }

@@ -1,5 +1,7 @@
 #include "voice_assistant.h"
 #include "common.h"
+#include "context_graph.h"
+#include <rapidfuzz/rapidfuzz/fuzz.hpp>
 
 #include <iostream>
 
@@ -8,9 +10,6 @@ VoiceAssistant::VoiceAssistant(const VoiceAssistantInit& va_init)
 	fs::path ctx_file(va_init.ctx_file);
 	fs::path often_mistakes(va_init.often_mistakes);
 	fs::path websites_links(va_init.websites_links);
-	fs::path apps_linux(va_init.apps_linux);
-	fs::path apps_windows(va_init.apps_windows);
-	fs::path apps_macos(va_init.apps_macos);
 
 	if (!fs::exists(ctx_file)) {
 		throw std::runtime_error("Context file does not exists");
@@ -24,51 +23,42 @@ VoiceAssistant::VoiceAssistant(const VoiceAssistantInit& va_init)
 		throw std::runtime_error("File with websites links does not exists");
 	}
 
-	if (!fs::exists(apps_linux)) {
-		throw std::runtime_error("File with applications for linux does not exists");
-	}
-
-	if (!fs::exists(apps_windows)) {
-		throw std::runtime_error("File with applications for linux does not exists");
-	}
-
-	if (!fs::exists(apps_macos)) {
-		throw std::runtime_error("File with applications for linux does not exists");
-	}
-
 	ctx_graph_.TrainGraph(va_init.ctx_file);
 	ctx_graph_.AddOftenMistakes(va_init.often_mistakes);
 
 	std::ifstream websites_ifs(websites_links);
 	const auto& web_links_json = json::Load(websites_ifs).GetRoot();
 	if (web_links_json.IsDict()) {
-		websites_links_ = web_links_json.AsDict();
+		websites_ = web_links_json.AsDict();
+		websites_ifs.close();
 	} else {
 		throw std::runtime_error("Websites links root is not a dictionary");
 	}
 
-	std::ifstream apps_linux_ifs(apps_linux);
-	const auto& apps_linux_json = json::Load(apps_linux_ifs).GetRoot();
-	if (apps_linux_json.IsDict()) {
-		apps_linux_ = apps_linux_json.AsDict();
-	} else {
-		throw std::runtime_error("Linux applications root is not a dictionary");
+	fs::path apps_path;
+	std::string os_name;
+
+#if defined(_WIN32) || defined(_WIN64)
+	apps_path = va_init.apps_windows;
+	os_name = "Windows";
+#elif defined(__APPLE__)
+	apps_path = va_init.apps_macos;
+	os_name = "MacOs";
+#elif defined(__linux__) || defined(__linux)
+	apps_path = va_init.apps_linux;
+	os_name = "Linux";
+#endif
+
+	if (!fs::exists(apps_path)) {
+		throw std::runtime_error("File with applications for " + os_name + " does not exists");
 	}
 
-	std::ifstream apps_windows_ifs(apps_windows);
-	const auto& apps_windows_json = json::Load(apps_windows_ifs).GetRoot();
-	if (apps_windows_json.IsDict()) {
-		apps_windows_ = apps_windows_json.AsDict();
+	std::ifstream apps_ifs(apps_path);
+	const auto& apps_json = json::Load(apps_ifs).GetRoot();
+	if (apps_json.IsDict()) {
+		apps_ = apps_json.AsDict();
 	} else {
-		throw std::runtime_error("Windows applications root is not a dictionary");
-	}
-
-	std::ifstream apps_macos_ifs(apps_macos);
-	const auto& apps_macos_json = json::Load(apps_macos_ifs).GetRoot();
-	if (apps_macos_json.IsDict()) {
-		apps_macos_ = apps_macos_json.AsDict();
-	} else {
-		throw std::runtime_error("MacOs applications root is not a dictionary");
+		throw std::runtime_error(os_name + " applications root is not a dictionary");
 	}
 }
 
@@ -107,16 +97,37 @@ void VoiceAssistant::ProcessAudio(ma_device* pDevice, void* pOutput, const void*
 
 void VoiceAssistant::ExecRequest(const Request& req) const {}
 
-void VoiceAssistant::OpenReq(const std::string& req) const {
-	if (websites_links_.contains(req)) {
-		OpenWebSite(websites_links_.at(req).AsString());
+void VoiceAssistant::OpenReq(const std::string& arg) const {
+	if (websites_.contains(arg)) {
+		OpenWebSite(websites_.at(arg).AsString());
 		return;
+	}
+
+	if (apps_.contains(arg)) {
+		OpenApplication(apps_.at(arg).AsString());
+		return;
+	}
+
+	for (const auto& web_pair : websites_) {
+		if (rapidfuzz::fuzz::ratio(arg, web_pair.first) >= ACCURANCY_PERCENT) {
+			OpenWebSite(web_pair.second.AsString());
+			return;
+		}
+	}
+
+	for (const auto& app_pair : apps_) {
+		if (rapidfuzz::fuzz::ratio(arg, app_pair.first) >= ACCURANCY_PERCENT) {
+			OpenWebSite(app_pair.second.AsString());
+			return;
+		}
 	}
 }
 
-void VoiceAssistant::SearchReq(const Request& req) const {}
-void VoiceAssistant::TurnOffReq(const Request& req) const {}
+void VoiceAssistant::SearchReq(const std::string& arg) const { SearchOnTheInternet(arg); }
+
+void VoiceAssistant::ShutdownReq() const { Shutdown(); }
+
 void VoiceAssistant::ScreenLockReq(const Request& req) const {}
 void VoiceAssistant::ChangeKbLayoutReq(const Request& req) const {}
-void VoiceAssistant::StopReq(const Request& req) const {}
+void VoiceAssistant::StopReq(const Request& req) const { ExitProgram(); }
 void VoiceAssistant::OpenSettingsReq(const Request& req) const {}

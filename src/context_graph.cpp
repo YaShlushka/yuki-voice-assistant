@@ -13,7 +13,6 @@
 #include <vector>
 
 const std::string IGNORING_CHARS = ".!?,\"\'-:;";
-constexpr double ACCURANCY_PERCENT = 70;
 
 using CSVLine = std::vector<std::string>;
 using CSV = std::vector<CSVLine>;
