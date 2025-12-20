@@ -52,7 +52,7 @@ TEST_CASE("Context Graph") {
 		CHECK(graph.ParsePhrase("Открою ютубу") == target_req);
 	}
 	{
-		Request req = graph.ParsePhrase("найди в интернете ютуб");
-		CHECK(req == Request{.type = RequestType::SEARCH_ON_THE_INTERNET, .arg = "youtube"});
+		Request target_req = Request{.type = RequestType::SEARCH_ON_THE_INTERNET, .arg = "youtube"};
+		CHECK(graph.ParsePhrase("найди в интернете ютуб") == target_req);
 	}
 }

@@ -1,10 +1,12 @@
 cmake_minimum_required(VERSION 3.14)
 project(yuki-voice-assistant C CXX)
 
+set(BOOST_INCLUDE_LIBRARIES json locale)
+
 add_subdirectory(lib/whisper.cpp)
 add_subdirectory(lib/catch2)
 add_subdirectory(lib/rapidfuzz)
-add_subdirectory(lib/json)
+add_subdirectory(lib/boost EXCLUDE_FROM_ALL)
 
 set(CMAKE_CXX_STANDARD 20)
 
@@ -53,6 +55,7 @@ add_executable(context_graph_tests
 target_include_directories(recognize_test PRIVATE "lib")
 target_include_directories(rapidfuzz_check PRIVATE "lib" "lib/rapidfuzz")
 
+target_link_libraries(context_graph_lib Boost::locale)
 target_link_libraries(recognize_test vosk whisper Boost::json)
 target_link_libraries(rapidfuzz_check rapidfuzz::rapidfuzz)
 target_link_libraries(context_graph_tests context_graph_lib Catch2::Catch2WithMain)

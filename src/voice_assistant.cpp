@@ -2,7 +2,7 @@
 #include "common.h"
 #include "context_graph.h"
 #include "request.h"
-#include <json/include/boost/json.hpp>
+#include <boost/json.hpp>
 #include <rapidfuzz/rapidfuzz/fuzz.hpp>
 
 #include <filesystem>
@@ -76,8 +76,10 @@ VoiceAssistant::VoiceAssistant(const VoiceAssistantInit& va_init)
 void VoiceAssistant::MiniAudioCallback(ma_device* pDevice, void* pOutput, const void* pInput,
 													ma_uint32 frame_count) {
 	auto* self = static_cast<VoiceAssistant*>(pDevice->pUserData);
-	if (!self)
+	if (!self) {
 		return;
+	}
+
 	self->ProcessAudio(pDevice, pOutput, pInput, frame_count);
 }
 

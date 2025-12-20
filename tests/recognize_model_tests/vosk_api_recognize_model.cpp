@@ -1,7 +1,7 @@
 #include "vosk_api_recognize_model.h"
 
 #include <cstring>
-#include <json/include/boost/json.hpp>
+#include <boost/json.hpp>
 #include <sstream>
 #include <stdexcept>
 

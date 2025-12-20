@@ -1,16 +1,18 @@
 #include "context_graph.h"
 #include "request.h"
-#include <memory>
+
+#include <boost/locale.hpp>
 #include <rapidfuzz/rapidfuzz/fuzz.hpp>
 
 #include <cassert>
 #include <filesystem>
 #include <fstream>
+#include <iostream>
+#include <memory>
 #include <stdexcept>
 #include <string>
 #include <string_view>
 #include <utility>
-#include <iostream>
 #include <vector>
 
 const std::string IGNORING_CHARS = ".!?,\"\'-:;";
@@ -27,15 +29,23 @@ struct Line {
 };
 
 std::vector<std::string_view> ParseString(std::string_view str) {
-	size_t begin = 0;
-	size_t end = 0;
 	std::vector<std::string_view> result;
-	while ((end = str.find(' ', begin)) != std::string_view::npos) {
-		result.push_back(str.substr(begin, end - begin));
-		begin = end + 1;
-	}
-	result.push_back(str.substr(begin));
+	size_t pos = 0;
 
+	while (pos < str.size()) {
+		size_t start = str.find_first_not_of(' ', pos);
+		if (start == std::string_view::npos) {
+			break;
+		}
+
+		size_t end = str.find(' ', start);
+		if (end == std::string_view::npos) {
+			end = str.size();
+		}
+
+		result.push_back(str.substr(start, end - start));
+		pos = end;
+	}
 	return result;
 }
 
@@ -115,26 +125,35 @@ void ContextGraph::AddOftenMistakes(const std::string& file) {
 
 Request ContextGraph::ParsePhrase(const std::string& phrase) {
 	using namespace rapidfuzz;
+	static boost::locale::generator gen;
+	static std::locale loc = gen("ru_RU.UTF-8");
 
 	Request req;
-	std::string str;
+	std::string clean_str;
 	for (char ch : phrase) {
 		if (IGNORING_CHARS.find(ch) == std::string::npos) {
-			str.push_back(std::tolower(ch));
+			clean_str.push_back(std::tolower(ch));
 		}
 	}
 
-	std::cout << str << std::endl;
+	std::string str = boost::locale::to_lower(clean_str, loc);
 
 	for (const std::pair<std::string, std::string>& mistake : often_mistakes_) {
 		size_t pos = str.find(mistake.first);
+		size_t start = str.rfind(' ', pos) + 1;
+		size_t end = str.find(' ', pos);
 		if (pos != std::string::npos) {
-			str.replace(pos, mistake.first.size(), mistake.second);
+			str.replace(start, end - start, mistake.second);
 		}
 	}
 
 	std::vector<std::string_view> words = ParseString(str);
 	std::shared_ptr<Node> cur = graph_;
+
+	for (std::string_view word : words) {
+		std::cout << "\"" << word << "\"" << std::endl;
+	}
+
 	for (std::string_view word : words) {
 		std::string word_str = std::string(word);
 		if (cur->childs.contains(word_str)) {
@@ -152,7 +171,12 @@ Request ContextGraph::ParsePhrase(const std::string& phrase) {
 			req.type = cur->type;
 
 			if (cur->has_arg) {
-				req.arg = str.substr(str.find(word_str) + word.size() + 1);
+				size_t arg_start = str.find(word_str);
+				if (arg_start != std::string::npos && arg_start + word_str.size() + 1 < str.size()) {
+					req.arg = str.substr(arg_start + word_str.size() + 1);
+				} else {
+					req.arg = "";
+				}
 			}
 			break;
 		}

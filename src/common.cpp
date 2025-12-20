@@ -1,10 +1,17 @@
 #include "common.h"
 
+#include <iostream>
 #include <sstream>
+#include <iomanip>
+
+bool IsRusChar(char32_t c) {
+    return (c >= 0x0410 && c <= 0x044F) ||
+           c == 0x0401 || c == 0x0451;
+}
 
 std::string CharToHex(char ch) {
 	std::stringstream ss;
-	ss << std::hex << int(ch);
+	ss << std::hex << std::setw(2) << std::setfill('0') << int(ch);
 	return ss.str();
 }
 
@@ -35,12 +42,7 @@ void OpenApplication(const std::string& name) {
 void SearchOnTheInternet(const std::string& request) {
 	std::string url = "https://www.google.com/search?q=";
 	for (char ch : request) {
-		switch (ch) {
-		case ' ':
-			url += '+';
-		default:
-			url += "%" + CharToHex(ch);
-		}
+		url += ch == ' ' ? '+' : ch;
 	}
 
 	OpenWebSite(url);
@@ -65,5 +67,5 @@ void LockScreen() {
 	system("osascript -e 'tell application " System Events " to keystroke " q
 			 " using {command down, control down}'");
 #endif
-// !!! Maybe finish it later !!!
+	// !!! Maybe finish it later !!!
 }
