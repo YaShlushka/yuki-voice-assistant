@@ -7,8 +7,6 @@
 #include "miniaudio/miniaudio.h"
 #include "recognize_model.h"
 
-#include <json/include/nlohmann/json.hpp>
-
 struct VoiceAssistantInit {
 	std::string model;
 	std::string ctx_file;

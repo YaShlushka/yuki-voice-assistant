@@ -2,6 +2,7 @@
 #include "common.h"
 #include "context_graph.h"
 #include "request.h"
+#include <json/include/boost/json.hpp>
 #include <rapidfuzz/rapidfuzz/fuzz.hpp>
 
 #include <filesystem>
@@ -10,7 +11,7 @@
 
 namespace fs = std::filesystem;
 
-using Json = nlohmann::json;
+namespace json = boost::json;
 
 VoiceAssistant::VoiceAssistant(const VoiceAssistantInit& va_init)
 	 : recognizer(va_init.model.c_str()) {
@@ -34,10 +35,10 @@ VoiceAssistant::VoiceAssistant(const VoiceAssistantInit& va_init)
 	ctx_graph_.AddOftenMistakes(va_init.often_mistakes);
 
 	std::ifstream websites_ifs(websites_links);
-	const auto& web_links_json = Json::parse(websites_ifs);
+	auto web_links_json = json::parse(websites_ifs);
 	if (web_links_json.is_object()) {
-		for (auto& [key, value] : web_links_json.items()) {
-			websites_[key] = value.get<std::string>();
+		for (auto& [key, value] : web_links_json.as_object()) {
+			websites_[key] = value.as_string();
 		}
 	} else {
 		throw std::runtime_error("Websites links root is not a dictionary");
@@ -62,10 +63,10 @@ VoiceAssistant::VoiceAssistant(const VoiceAssistantInit& va_init)
 	}
 
 	std::ifstream apps_ifs(apps_path);
-	const auto& apps_json = Json::parse(apps_ifs);
+	auto apps_json = json::parse(apps_ifs);
 	if (apps_json.is_object()) {
-		for (auto& [key, value] : apps_json.items()) {
-			apps_[key] = value.get<std::string>();
+		for (auto& [key, value] : apps_json.as_object()) {
+			apps_[key] = value.as_string();
 		}
 	} else {
 		throw std::runtime_error(os_name + " applications root is not a dictionary");

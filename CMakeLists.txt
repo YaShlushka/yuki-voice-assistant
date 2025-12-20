@@ -6,8 +6,6 @@ add_subdirectory(lib/catch2)
 add_subdirectory(lib/rapidfuzz)
 add_subdirectory(lib/json)
 
-find_package(nlohmann_json 3.12.0 REQUIRED)
-
 set(CMAKE_CXX_STANDARD 20)
 
 set(SOURCE_FILES
@@ -55,7 +53,7 @@ add_executable(context_graph_tests
 target_include_directories(recognize_test PRIVATE "lib")
 target_include_directories(rapidfuzz_check PRIVATE "lib" "lib/rapidfuzz")
 
-target_link_libraries(recognize_test vosk whisper nlohmann_json::nlohmann_json)
+target_link_libraries(recognize_test vosk whisper Boost::json)
 target_link_libraries(rapidfuzz_check rapidfuzz::rapidfuzz)
 target_link_libraries(context_graph_tests context_graph_lib Catch2::Catch2WithMain)
-target_link_libraries(${PROJECT_NAME} PRIVATE ${SYSTEM_LIBS} whisper rapidfuzz::rapidfuzz context_graph_lib nlohmann_json::nlohmann_json)
+target_link_libraries(${PROJECT_NAME} PRIVATE ${SYSTEM_LIBS} whisper rapidfuzz::rapidfuzz context_graph_lib Boost::json)

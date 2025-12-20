@@ -1,13 +1,13 @@
 #include "vosk_api_recognize_model.h"
 
 #include <cstring>
-#include <json/include/nlohmann/json.hpp>
+#include <json/include/boost/json.hpp>
 #include <sstream>
 #include <stdexcept>
 
 namespace vosk {
 
-using Json = nlohmann::json;
+namespace json = boost::json;
 
 RecognizeModel::RecognizeModel(const std::string& model_path) : model_(nullptr) {
 	if (!model_path.c_str() || std::strlen(model_path.c_str()) == 0) {
@@ -41,13 +41,13 @@ std::string RecognizeModel::RecognizeAudio(const std::vector<int16_t>& buf) {
 
 	vosk_recognizer_free(recognizer);
 
-	Json doc = Json::parse(sstream);
+	auto doc = json::parse(sstream);
 
 	std::string result;
-	if (doc.contains("partial")) {
-		result = doc["partial"];
-	} else if (doc.contains("text")) {
-		result = doc["text"];
+	if (doc.as_object().contains("partial")) {
+		result = doc.as_object().at("partial").as_string();
+	} else if (doc.as_object().contains("text")) {
+		result = doc.as_object().at("text").as_string();
 	}
 
 	return "";
