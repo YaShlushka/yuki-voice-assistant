@@ -46,8 +46,10 @@ TEST_CASE("Context Graph") {
 	graph.AddOftenMistakes("data/often_mistakes.csv");
 
 	{
-		Request req = graph.ParsePhrase("открой ютуб");
-		CHECK(req == Request{.type = RequestType::OPEN, .arg = "youtube"});
+		Request target_req = Request{.type = RequestType::OPEN, .arg = "youtube"};
+		CHECK(graph.ParsePhrase("открой ютуб") == target_req);
+		CHECK(graph.ParsePhrase("Открой ютуб") == target_req);
+		CHECK(graph.ParsePhrase("Открою ютубу") == target_req);
 	}
 	{
 		Request req = graph.ParsePhrase("найди в интернете ютуб");

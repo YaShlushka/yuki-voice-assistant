@@ -10,6 +10,7 @@
 #include <string>
 #include <string_view>
 #include <utility>
+#include <iostream>
 #include <vector>
 
 const std::string IGNORING_CHARS = ".!?,\"\'-:;";
@@ -122,6 +123,8 @@ Request ContextGraph::ParsePhrase(const std::string& phrase) {
 			str.push_back(std::tolower(ch));
 		}
 	}
+
+	std::cout << str << std::endl;
 
 	for (const std::pair<std::string, std::string>& mistake : often_mistakes_) {
 		size_t pos = str.find(mistake.first);
