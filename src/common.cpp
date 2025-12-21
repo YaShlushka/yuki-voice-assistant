@@ -52,9 +52,9 @@ void Shutdown() {
 #if defined(_WIN32) || defined(_WIN64)
 	system("shutdown /s /t 0");
 #elif defined(__APPLE__)
-	system("sudo shutdown -h now");
+	system("shutdown -h now");
 #elif defined(__linux__) || defined(__linux)
-	system("sudo shutdown -h now");
+	system("shutdown -h now");
 #endif
 }
 
