@@ -5,7 +5,7 @@
 
 enum class RequestType {
 	OPEN = 0,
-	SEARCH_ON_THE_INTERNET,
+	WEB_SEARCH,
 	SHUTDOWN,
 	SCREEN_LOCK,
 	STOP,

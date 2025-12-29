@@ -3,9 +3,9 @@
 #include <cstdint>
 #include <vector>
 
-#include "context_graph.h"
+#include "context-graph.h"
 #include "miniaudio/miniaudio.h"
-#include "recognize_model.h"
+#include "recognize-model.h"
 
 struct VoiceAssistantInit {
 	std::string model;

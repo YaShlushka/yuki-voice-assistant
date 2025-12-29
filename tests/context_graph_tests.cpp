@@ -2,7 +2,7 @@
 
 #include <catch2/catch_test_macros.hpp>
 
-#include "../src/context_graph.h"
+#include "../src/context-graph.h"
 
 namespace Catch {
 template <>
@@ -11,8 +11,8 @@ struct StringMaker<RequestType> {
 		switch (value) {
 		case RequestType::OPEN:
 			return "OPEN";
-		case RequestType::SEARCH_ON_THE_INTERNET:
-			return "SEARCH_ON_THE_INTERNET";
+		case RequestType::WEB_SEARCH:
+			return "WEB_SEARCH";
 		case RequestType::SHUTDOWN:
 			return "SHUTDOWN";
 		case RequestType::SCREEN_LOCK:
@@ -52,7 +52,7 @@ TEST_CASE("Context Graph") {
 		CHECK(graph.ParsePhrase("Открою ютубу") == target_req);
 	}
 	{
-		Request target_req = Request{.type = RequestType::SEARCH_ON_THE_INTERNET, .arg = "youtube"};
+		Request target_req = Request{.type = RequestType::WEB_SEARCH, .arg = "youtube"};
 		CHECK(graph.ParsePhrase("найди в интернете ютуб") == target_req);
 	}
 }

@@ -1,6 +1,6 @@
 // for check with clang-tidy use clang-tidy main.cpp recognize_model.cpp -- -std=c++20
 #include "miniaudio/miniaudio.h"
-#include "voice_assistant.h"
+#include "voice-assistant.h"
 
 #include <boost/json.hpp>
 #include <cstdlib>

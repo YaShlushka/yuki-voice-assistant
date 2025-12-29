@@ -1,6 +1,6 @@
-#include "voice_assistant.h"
+#include "voice-assistant.h"
 #include "common.h"
-#include "context_graph.h"
+#include "context-graph.h"
 #include "request.h"
 #include <boost/json.hpp>
 #include <rapidfuzz/rapidfuzz/fuzz.hpp>
@@ -116,7 +116,7 @@ void VoiceAssistant::ExecRequest(const Request& req) const {
 	case RequestType::OPEN:
 		OpenReq(req.arg);
 		break;
-	case RequestType::SEARCH_ON_THE_INTERNET:
+	case RequestType::WEB_SEARCH:
 		SearchReq(req.arg);
 		break;
 	case RequestType::SHUTDOWN:
