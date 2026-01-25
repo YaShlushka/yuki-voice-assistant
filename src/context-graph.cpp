@@ -128,7 +128,7 @@ Request ContextGraph::ParsePhrase(const std::string& phrase) {
 	static boost::locale::generator gen;
 	static std::locale loc = gen("ru_RU.UTF-8");
 
-	Request req;
+	Request req{.type = RequestType::UNKNOWN};
 	std::string clean_str;
 	for (char ch : phrase) {
 		if (IGNORING_CHARS.find(ch) == std::string::npos) {

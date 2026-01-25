@@ -60,6 +60,7 @@ int main() {
 	if (va_init.model.empty() || va_init.ctx_file.empty() || va_init.websites_links.empty()) {
 		return EXIT_FAILURE;
 	}
+	va_init.stop_callback = StopProgram;
 
 	VoiceAssistant voice_assistant(va_init);
 

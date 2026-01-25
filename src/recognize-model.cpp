@@ -2,7 +2,6 @@
 
 #include <cstring>
 #include <boost/json.hpp>
-#include <sstream>
 #include <stdexcept>
 
 namespace json = boost::json;
@@ -77,17 +76,6 @@ std::string RecognizeModel::RecognizeAudio(const std::vector<int16_t>& buf) {
 	VoskRecognizer* recognizer = vosk_recognizer_new(model_, 16000.f);
 	int final = vosk_recognizer_accept_waveform(
 		 recognizer, reinterpret_cast<const char*>(buf.data()), buf.size() * sizeof(int16_t));
-
-	// std::stringstream sstream;
-	// if (final) {
-	// 	sstream << vosk_recognizer_result(recognizer);
-	// } else {
-	// 	sstream << vosk_recognizer_partial_result(recognizer);
-	// }
-	//
-	// vosk_recognizer_free(recognizer);
-	//
-	// auto doc = json::parse(sstream);
 
 	std::string final_json = vosk_recognizer_final_result(recognizer);
 	vosk_recognizer_free(recognizer);
