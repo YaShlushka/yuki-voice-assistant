@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <vector>
+#include <functional>
 
 #include "context-graph.h"
 #include "miniaudio/miniaudio.h"
@@ -15,6 +16,7 @@ struct VoiceAssistantInit {
 	std::string apps_linux;
 	std::string apps_windows;
 	std::string apps_macos;
+	std::function<void()> stop_callback;
 };
 
 class VoiceAssistant {
@@ -30,14 +32,15 @@ class VoiceAssistant {
 	void SearchReq(const std::string& arg) const;
 	void ShutdownReq() const;
 	void ScreenLockReq(const Request& req) const;
-	void StopReq(const Request& req) const;
+	void StopReq() const;
 
-	RecognizeModel recognizer;
+	RecognizeModel recognizer_;
 	ContextGraph ctx_graph_;
-	std::vector<float> audio_buffer;
-	uint16_t last_speak_time = 5001;
-	bool is_speak = false;
-	bool is_quiet = true;
+	std::vector<int16_t> audio_buffer_;
+	uint16_t last_speak_time_ = 5001;
+	bool is_speak_ = false;
+	bool is_quiet_ = true;
 	std::unordered_map<std::string, std::string> websites_;
 	std::unordered_map<std::string, std::string> apps_;
+	std::function<void()> stop_callback_;
 };

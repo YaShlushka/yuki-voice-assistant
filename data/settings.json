@@ -1,5 +1,5 @@
 {
-	"model": "models/ggml-small.bin",
+	"model": "models/vosk-model-ru-0.42",
 	"ctx_file": "data/context_training.csv",
 	"often_mistakes": "data/often_mistakes.csv",
 	"websites": "data/websites.json",

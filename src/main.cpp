@@ -1,12 +1,32 @@
-// for check with clang-tidy use clang-tidy main.cpp recognize_model.cpp -- -std=c++20
 #include "miniaudio/miniaudio.h"
 #include "voice-assistant.h"
 
 #include <boost/json.hpp>
+
 #include <cstdlib>
 #include <fstream>
+#include <atomic>
+#include <condition_variable>
+#include <csignal>
+#include <mutex>
+#include <iostream>
 
 namespace json = boost::json;
+
+namespace {
+
+std::atomic_bool STOP_REQUESTED{false};
+std::mutex MTX;
+std::condition_variable CV;
+
+void StopProgram() {
+	STOP_REQUESTED.store(true, std::memory_order_relaxed);
+	CV.notify_one();
+}
+
+void SignalHandler(int) { StopProgram(); }
+
+} // namespace
 
 int main() {
 	VoiceAssistantInit va_init;
@@ -50,16 +70,27 @@ int main() {
 	config.capture.channels = 1;				// mono
 	config.sampleRate = 16000;					// 16 kHz
 	config.pUserData = &voice_assistant;
-	config.dataCallback = VoiceAssistant::MiniAudioCallback; // callback function
+	config.dataCallback = VoiceAssistant::MiniAudioCallback;
 
 	if (ma_device_init(NULL, &config, &device) != MA_SUCCESS) {
 		return -1;
 	}
 
-	ma_device_start(&device);
-	while (true) {
+	if (ma_device_start(&device) != MA_SUCCESS) {
+		ma_device_uninit(&device);
+		return -1;
 	}
 
+	std::signal(SIGINT, SignalHandler);
+	std::signal(SIGTERM, SignalHandler);
+
+	std::cout << "START" << std::endl;
+
+	std::unique_lock<std::mutex> thread_lock(MTX);
+	CV.wait(thread_lock, [] { return STOP_REQUESTED.load(std::memory_order_relaxed); });
+
+	ma_device_stop(&device);
 	ma_device_uninit(&device);
+
 	return EXIT_SUCCESS;
 }

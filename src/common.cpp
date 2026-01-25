@@ -1,18 +1,27 @@
 #include "common.h"
 
-#include <iostream>
-#include <sstream>
-#include <iomanip>
-
-bool IsRusChar(char32_t c) {
-    return (c >= 0x0410 && c <= 0x044F) ||
-           c == 0x0401 || c == 0x0451;
+static bool IsSupportedChar(unsigned char c) {
+	return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '-' ||
+			 c == '_' || c == '.' || c == '~';
 }
 
-std::string CharToHex(char ch) {
-	std::stringstream ss;
-	ss << std::hex << std::setw(2) << std::setfill('0') << int(ch);
-	return ss.str();
+static std::string UrlEncode(std::string_view s) {
+	std::string res;
+
+	for (unsigned char c : s) {
+		if (c == ' ') {
+			res.push_back('+');
+		} else if (IsSupportedChar(c)) {
+			res.push_back(static_cast<char>(c));
+		} else {
+			const char* hex = "0123456789ABCDEF";
+			res.push_back('%');
+			res.push_back(hex[(c >> 4) & 0xF]);
+			res.push_back(hex[c & 0xF]);
+		}
+	}
+
+	return res;
 }
 
 void OpenWebSite(const std::string& url) {
@@ -41,9 +50,7 @@ void OpenApplication(const std::string& name) {
 
 void SearchOnTheInternet(const std::string& request) {
 	std::string url = "https://www.google.com/search?q=";
-	for (char ch : request) {
-		url += ch == ' ' ? '+' : ch;
-	}
+	url += UrlEncode(request);
 
 	OpenWebSite(url);
 }
@@ -57,8 +64,6 @@ void Shutdown() {
 	system("shutdown -h now");
 #endif
 }
-
-void ExitProgram(int code) { exit(code); }
 
 void LockScreen() {
 #if defined(_WIN32) || defined(_WIN64)

@@ -50,7 +50,7 @@ std::string RecognizeModel::RecognizeAudio(const std::vector<int16_t>& buf) {
 		result = doc.as_object().at("text").as_string();
 	}
 
-	return "";
+	return result;
 }
 
 } // namespace vosk
