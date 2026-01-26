@@ -1,6 +1,7 @@
 import os
 import torch
 from unsloth import FastLanguageModel
+from unsloth.chat_templates import get_chat_template
 from datasets import load_dataset
 
 max_seq_length = 512
@@ -30,6 +31,13 @@ model = FastLanguageModel.get_peft_model(
     loftq_config=None   # No LoftQ, for standard fine-tuning
 )
 
-dataset = load_dataset("json", data_files="data/train.jsonl", split="train")
-dataset = dataset.select(range(4))
+dataset = load_dataset("json", data_files="data/train.jsonl")
+dataset = dataset["train"].select(range(4))
 print(f"Using a sample size of {len(dataset)} for fine-tuning.")
+
+tokenizer = get_chat_template(
+    tokenizer,
+    chat_template = "llama-3", 
+    mapping = {"role" : "from", "content" : "value", "user" : "human", "assistant" : "gpt"}, # ShareGPT style, сменить на alpaca мб
+    map_eos_token = True,
+)
