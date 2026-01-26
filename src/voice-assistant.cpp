@@ -44,23 +44,7 @@ VoiceAssistant::VoiceAssistant(const VoiceAssistantInit& va_init)
 		throw std::runtime_error("Websites links root is not a dictionary");
 	}
 
-	fs::path apps_path;
-	std::string os_name;
-
-#if defined(_WIN32) || defined(_WIN64)
-	apps_path = va_init.apps_windows;
-	os_name = "Windows";
-#elif defined(__APPLE__)
-	apps_path = va_init.apps_macos;
-	os_name = "MacOs";
-#elif defined(__linux__) || defined(__linux)
-	apps_path = va_init.apps_linux;
-	os_name = "Linux";
-#endif
-
-	if (!fs::exists(apps_path)) {
-		throw std::runtime_error("File with applications for " + os_name + " does not exists");
-	}
+	fs::path apps_path = va_init.applications;
 
 	std::ifstream apps_ifs(apps_path);
 	auto apps_json = json::parse(apps_ifs);
@@ -69,7 +53,7 @@ VoiceAssistant::VoiceAssistant(const VoiceAssistantInit& va_init)
 			apps_[key] = value.as_string();
 		}
 	} else {
-		throw std::runtime_error(os_name + " applications root is not a dictionary");
+		throw std::runtime_error("applications.json root is not a dictionary");
 	}
 
 	stop_callback_ = va_init.stop_callback;

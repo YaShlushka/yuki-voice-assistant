@@ -34,6 +34,7 @@ int main() {
 	if (!settings_ifs) {
 		return EXIT_FAILURE;
 	}
+
 	auto settings = json::parse(settings_ifs);
 	json::object settings_obj = settings.as_object();
 	if (settings_obj.contains("model")) {
@@ -48,16 +49,10 @@ int main() {
 	if (settings_obj.contains("websites")) {
 		va_init.websites_links = settings_obj.at("websites").as_string();
 	}
-	if (settings_obj.contains("apps_linux")) {
-		va_init.apps_linux = settings_obj.at("apps_linux").as_string();
+	if (settings_obj.contains("applications")) {
+		va_init.applications = settings_obj.at("applications").as_string();
 	}
-	if (settings_obj.contains("apps_windows")) {
-		va_init.apps_windows = settings_obj.at("apps_windows").as_string();
-	}
-	if (settings_obj.contains("apps_macos")) {
-		va_init.apps_macos = settings_obj.at("apps_macos").as_string();
-	}
-	if (va_init.model.empty() || va_init.ctx_file.empty() || va_init.websites_links.empty()) {
+	if (va_init.model.empty() || va_init.ctx_file.empty()) {
 		return EXIT_FAILURE;
 	}
 	va_init.stop_callback = StopProgram;

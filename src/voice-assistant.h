@@ -13,9 +13,7 @@ struct VoiceAssistantInit {
 	std::string ctx_file;
 	std::string often_mistakes;
 	std::string websites_links;
-	std::string apps_linux;
-	std::string apps_windows;
-	std::string apps_macos;
+	std::string applications;
 	std::function<void()> stop_callback;
 };
 

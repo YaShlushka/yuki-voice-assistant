@@ -3,7 +3,5 @@
 	"ctx_file": "data/context_training.csv",
 	"often_mistakes": "data/often_mistakes.csv",
 	"websites": "data/websites.json",
-	"apps_linux": "data/apps_linux.json",
-	"apps_windows": "data/apps_windows.json",
-	"apps_macos": "data/apps_macos.json"
+	"applications": "data/applications.json"
 }
