@@ -88,10 +88,13 @@ void VoiceAssistant::ProcessAudio(ma_device* pDevice, void* pOutput, const void*
 	}
 
 	if (!is_speak_ && !is_quiet_) {
-		std::string req_str = recognizer_.RecognizeAudio(std::move(audio_buffer_));
-		std::cout << req_str << std::endl;
-		Request req = ctx_graph_.ParsePhrase(req_str);
-		ExecRequest(req);
+		worker_.AddTask([this, audio_buffer = std::move(audio_buffer_)] {
+			std::string req_str = recognizer_.RecognizeAudio(std::move(audio_buffer));
+			std::cout << req_str << std::endl;
+			Request req = ctx_graph_.ParsePhrase(req_str);
+			ExecRequest(req);
+		});
+
 		audio_buffer_ = {};
 		is_quiet_ = true;
 	}

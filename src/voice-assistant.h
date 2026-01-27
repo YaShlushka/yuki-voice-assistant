@@ -7,6 +7,7 @@
 #include "context-graph.h"
 #include "miniaudio/miniaudio.h"
 #include "recognize-model.h"
+#include "worker.h"
 
 struct VoiceAssistantInit {
 	std::string model;
@@ -41,4 +42,5 @@ class VoiceAssistant {
 	std::unordered_map<std::string, std::string> websites_;
 	std::unordered_map<std::string, std::string> apps_;
 	std::function<void()> stop_callback_;
+	Worker worker_;
 };
