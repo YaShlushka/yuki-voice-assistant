@@ -74,17 +74,14 @@ void VoiceAssistant::ProcessAudio(ma_device* pDevice, void* pOutput, const void*
 	const int16_t* input_samples = (const int16_t*)pInput;
 
 	for (uint32_t i = 0; i < frame_count; i++) {
-		audio_buffer_.push_back(input_samples[i]);
-
 		last_speak_time_ = std::abs(input_samples[i]) > 2000
 									  ? 0
 									  : (last_speak_time_ > 5000 ? last_speak_time_ : last_speak_time_ + 1);
 		is_speak_ = last_speak_time_ < 5001 ? true : false;
 		is_quiet_ = last_speak_time_ < 5001 ? false : is_quiet_;
-	}
-
-	if (!is_speak_ && is_quiet_) {
-		audio_buffer_.clear();
+		if (is_speak_ || !is_quiet_) {
+			audio_buffer_.push_back(input_samples[i]);
+		}
 	}
 
 	if (!is_speak_ && !is_quiet_) {
