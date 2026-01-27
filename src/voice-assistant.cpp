@@ -79,6 +79,7 @@ void VoiceAssistant::ProcessAudio(ma_device* pDevice, void* pOutput, const void*
 									  : (last_speak_time_ > 5000 ? last_speak_time_ : last_speak_time_ + 1);
 		is_speak_ = last_speak_time_ < 5001 ? true : false;
 		is_quiet_ = last_speak_time_ < 5001 ? false : is_quiet_;
+
 		if (is_speak_ || !is_quiet_) {
 			audio_buffer_.push_back(input_samples[i]);
 		}
