@@ -71,14 +71,14 @@ void VoiceAssistant::MiniAudioCallback(ma_device* pDevice, void* pOutput, const 
 
 void VoiceAssistant::ProcessAudio(ma_device* pDevice, void* pOutput, const void* pInput,
 											 ma_uint32 frame_count) {
-	const int16_t* input_samples = (const int16_t*)pInput;
+	const int16_t* input_samples = static_cast<const int16_t*>(pInput);
 
 	for (uint32_t i = 0; i < frame_count; i++) {
-		last_speak_time_ = std::abs(input_samples[i]) > 2000
+		last_speak_time_ = std::abs(input_samples[i]) > VOL_LIMIT
 									  ? 0
-									  : (last_speak_time_ > 5000 ? last_speak_time_ : last_speak_time_ + 1);
-		is_speak_ = last_speak_time_ < 5001 ? true : false;
-		is_processed_ = last_speak_time_ < 5001 ? false : is_processed_;
+									  : (last_speak_time_ > SPEAK_SAMPLES ? last_speak_time_ : last_speak_time_ + 1);
+		is_speak_ = last_speak_time_ < SPEAK_SAMPLES + 1 ? true : false;
+		is_processed_ = last_speak_time_ < SPEAK_SAMPLES + 1 ? false : is_processed_;
 
 		if (is_speak_ || !is_processed_) {
 			audio_buffer_.push_back(input_samples[i]);
