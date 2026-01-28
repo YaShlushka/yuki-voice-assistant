@@ -38,7 +38,7 @@ class VoiceAssistant {
 	std::vector<int16_t> audio_buffer_;
 	uint16_t last_speak_time_ = 5001;
 	bool is_speak_ = false;
-	bool is_quiet_ = true;
+	bool is_processed_ = true;
 	std::unordered_map<std::string, std::string> websites_;
 	std::unordered_map<std::string, std::string> apps_;
 	std::function<void()> stop_callback_;

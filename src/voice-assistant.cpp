@@ -78,14 +78,14 @@ void VoiceAssistant::ProcessAudio(ma_device* pDevice, void* pOutput, const void*
 									  ? 0
 									  : (last_speak_time_ > 5000 ? last_speak_time_ : last_speak_time_ + 1);
 		is_speak_ = last_speak_time_ < 5001 ? true : false;
-		is_quiet_ = last_speak_time_ < 5001 ? false : is_quiet_;
+		is_processed_ = last_speak_time_ < 5001 ? false : is_processed_;
 
-		if (is_speak_ || !is_quiet_) {
+		if (is_speak_ || !is_processed_) {
 			audio_buffer_.push_back(input_samples[i]);
 		}
 	}
 
-	if (!is_speak_ && !is_quiet_) {
+	if (!is_speak_ && !is_processed_) {
 		worker_.AddTask([this, audio_buffer = std::move(audio_buffer_)] {
 			std::string req_str = recognizer_.RecognizeAudio(std::move(audio_buffer));
 			std::cout << req_str << std::endl;
@@ -94,7 +94,7 @@ void VoiceAssistant::ProcessAudio(ma_device* pDevice, void* pOutput, const void*
 		});
 
 		audio_buffer_ = {};
-		is_quiet_ = true;
+		is_processed_ = true;
 	}
 }
 
