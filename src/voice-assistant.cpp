@@ -109,9 +109,6 @@ void VoiceAssistant::ExecRequest(const Request& req) const {
 	case RequestType::SHUTDOWN:
 		ShutdownReq();
 		break;
-	case RequestType::SCREEN_LOCK:
-		LockScreen();
-		break;
 	case RequestType::STOP:
 		StopReq();
 		break;
@@ -149,7 +146,5 @@ void VoiceAssistant::OpenReq(const std::string& arg) const {
 void VoiceAssistant::SearchReq(const std::string& arg) const { SearchOnTheInternet(arg); }
 
 void VoiceAssistant::ShutdownReq() const { Shutdown(); }
-
-void VoiceAssistant::ScreenLockReq(const Request& req) const { LockScreen(); }
 
 void VoiceAssistant::StopReq() const { stop_callback_(); }

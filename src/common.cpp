@@ -64,13 +64,3 @@ void Shutdown() {
 	system("shutdown -h now");
 #endif
 }
-
-void LockScreen() {
-#if defined(_WIN32) || defined(_WIN64)
-	system("rundll32.exe user32.dll,LockWorkStation");
-#elif defined(__APPLE__)
-	system("osascript -e 'tell application " System Events " to keystroke " q
-			 " using {command down, control down}'");
-#endif
-	// !!! Maybe finish it later !!!
-}

@@ -35,7 +35,6 @@ class VoiceAssistant {
 	void OpenReq(const std::string& arg) const;
 	void SearchReq(const std::string& arg) const;
 	void ShutdownReq() const;
-	void ScreenLockReq(const Request& req) const;
 	void StopReq() const;
 
 	RecognizeModel recognizer_;
