@@ -3,7 +3,6 @@ project(yuki-voice-assistant C CXX)
 
 set(BOOST_INCLUDE_LIBRARIES json locale)
 
-add_subdirectory(lib/whisper.cpp)
 add_subdirectory(lib/catch2)
 add_subdirectory(lib/rapidfuzz)
 add_subdirectory(lib/boost EXCLUDE_FROM_ALL)
@@ -34,16 +33,6 @@ else()
 	set(SYSTEM_LIBS)
 endif()
 
-add_executable(recognize_test
-	tests/recognize_model_tests/vosk_api_recognize_model.cpp
-	tests/recognize_model_tests/vosk_api_recognize_model.h
-	tests/recognize_model_tests/vosk_wav_recognize.h
-	tests/recognize_model_tests/whisper_recognize_model.cpp
-	tests/recognize_model_tests/whisper_recognize_model.h
-	tests/recognize_model_tests/whisper_wav_recognize.h
-	tests/recognize_model_tests/main.cpp
-)
-
 add_executable(rapidfuzz_check
 	tests/rapidfuzz_check.cpp
 )
@@ -52,18 +41,9 @@ add_executable(context_graph_tests
 	tests/context_graph_tests.cpp
 )
 
-add_executable(nn-test
-tests/nn-test.cpp
-src/neural-network.cpp
-)
-
-target_include_directories(recognize_test PRIVATE "lib")
 target_include_directories(rapidfuzz_check PRIVATE "lib" "lib/rapidfuzz")
 
 target_link_libraries(context_graph_lib Boost::locale)
-target_link_libraries(recognize_test vosk whisper Boost::json)
 target_link_libraries(rapidfuzz_check rapidfuzz::rapidfuzz)
 target_link_libraries(context_graph_tests context_graph_lib Catch2::Catch2WithMain)
-target_link_libraries(nn-test Boost::json)
-# target_link_libraries(${PROJECT_NAME} PRIVATE ${SYSTEM_LIBS} whisper rapidfuzz::rapidfuzz context_graph_lib Boost::json)
 target_link_libraries(${PROJECT_NAME} PRIVATE ${SYSTEM_LIBS} vosk rapidfuzz::rapidfuzz context_graph_lib Boost::json)

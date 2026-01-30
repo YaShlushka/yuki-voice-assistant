@@ -15,8 +15,6 @@ struct StringMaker<RequestType> {
 			return "WEB_SEARCH";
 		case RequestType::SHUTDOWN:
 			return "SHUTDOWN";
-		case RequestType::SCREEN_LOCK:
-			return "SCREEN_LOCK";
 		case RequestType::STOP:
 			return "STOP";
 		case RequestType::UNKNOWN:
