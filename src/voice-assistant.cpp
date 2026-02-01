@@ -59,19 +59,19 @@ VoiceAssistant::VoiceAssistant(const VoiceAssistantInit& va_init)
 	stop_callback_ = va_init.stop_callback;
 }
 
-void VoiceAssistant::MiniAudioCallback(ma_device* pDevice, void* pOutput, const void* pInput,
+void VoiceAssistant::MiniAudioCallback(ma_device* p_device, void* p_output, const void* p_input,
 													ma_uint32 frame_count) {
-	auto* self = static_cast<VoiceAssistant*>(pDevice->pUserData);
+	auto* self = static_cast<VoiceAssistant*>(p_device->pUserData);
 	if (!self) {
 		return;
 	}
 
-	self->ProcessAudio(pDevice, pOutput, pInput, frame_count);
+	self->ProcessAudio(p_input, frame_count);
 }
 
-void VoiceAssistant::ProcessAudio(ma_device* pDevice, void* pOutput, const void* pInput,
+void VoiceAssistant::ProcessAudio(const void* p_input,
 											 ma_uint32 frame_count) {
-	const int16_t* input_samples = static_cast<const int16_t*>(pInput);
+	const int16_t* input_samples = static_cast<const int16_t*>(p_input);
 
 	for (uint32_t i = 0; i < frame_count; i++) {
 		last_speak_time_ = std::abs(input_samples[i]) > VOL_LIMIT

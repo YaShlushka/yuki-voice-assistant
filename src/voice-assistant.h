@@ -26,11 +26,11 @@ class VoiceAssistant {
 	static constexpr int SPEAK_SAMPLES = SAMPLE_RATE * SPEAK_TIME;
 
 	explicit VoiceAssistant(const VoiceAssistantInit& va_init);
-	static void MiniAudioCallback(ma_device* pDevice, void* pOutput, const void* pInput,
+	static void MiniAudioCallback(ma_device* p_device, void* p_output, const void* p_input,
 											ma_uint32 frame_count);
 
  private:
-	void ProcessAudio(ma_device* pDevice, void* pOutput, const void* pInput, ma_uint32 frame_count);
+	void ProcessAudio(const void* p_input, ma_uint32 frame_count);
 	void ExecRequest(const Request& req) const;
 	void OpenReq(const std::string& arg) const;
 	void SearchReq(const std::string& arg) const;

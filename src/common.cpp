@@ -43,7 +43,7 @@ void OpenApplication(const std::string& name) {
 #elif defined(__APPLE__)
 	std::string command = "open -a " + name;
 #elif defined(__linux__) || defined(__linux)
-	std::string command = name;
+	std::string command = name + " &";
 #endif
 	system(command.c_str());
 }

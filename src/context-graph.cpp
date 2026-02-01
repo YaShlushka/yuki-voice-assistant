@@ -144,6 +144,7 @@ Request ContextGraph::ParsePhrase(const std::string& phrase) {
 		size_t end_tmp_1 = pos + mistake.first.size();
 		size_t end_tmp = str.find(' ', end_tmp_1);
 		size_t end = end_tmp == std::string::npos ? str.size() : end_tmp;
+
 		if (pos != std::string::npos) {
 			str.replace(start, end - start, mistake.second);
 		}
