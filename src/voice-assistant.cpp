@@ -69,14 +69,14 @@ void VoiceAssistant::MiniAudioCallback(ma_device* p_device, void* p_output, cons
 	self->ProcessAudio(p_input, frame_count);
 }
 
-void VoiceAssistant::ProcessAudio(const void* p_input,
-											 ma_uint32 frame_count) {
+void VoiceAssistant::ProcessAudio(const void* p_input, ma_uint32 frame_count) {
 	const int16_t* input_samples = static_cast<const int16_t*>(p_input);
 
 	for (uint32_t i = 0; i < frame_count; i++) {
-		last_speak_time_ = std::abs(input_samples[i]) > VOL_LIMIT
-									  ? 0
-									  : (last_speak_time_ > SPEAK_SAMPLES ? last_speak_time_ : last_speak_time_ + 1);
+		last_speak_time_ =
+			 std::abs(input_samples[i]) > VOL_LIMIT
+				  ? 0
+				  : (last_speak_time_ > SPEAK_SAMPLES ? last_speak_time_ : last_speak_time_ + 1);
 		is_speak_ = last_speak_time_ < SPEAK_SAMPLES + 1 ? true : false;
 		is_processed_ = last_speak_time_ < SPEAK_SAMPLES + 1 ? false : is_processed_;
 
@@ -111,6 +111,9 @@ void VoiceAssistant::ExecRequest(const Request& req) const {
 		break;
 	case RequestType::STOP:
 		StopReq();
+		break;
+	case RequestType::TOGGLE_MEDIA:
+		ToggleMedia();
 		break;
 	case RequestType::UNKNOWN:
 		return;

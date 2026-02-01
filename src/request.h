@@ -8,6 +8,7 @@ enum class RequestType {
 	WEB_SEARCH,
 	SHUTDOWN,
 	STOP,
+	TOGGLE_MEDIA,
 	UNKNOWN = INT_MAX
 };
 

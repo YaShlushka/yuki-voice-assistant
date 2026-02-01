@@ -1,5 +1,10 @@
 #include "common.h"
 
+#if defined(_WIN32) || defined(_WIN64)
+#include <windows.h>
+#elif defined(__linux__) || defined(__linux)
+#endif
+
 static bool IsSupportedChar(unsigned char c) {
 	return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '-' ||
 			 c == '_' || c == '.' || c == '~';
@@ -55,5 +60,23 @@ void Shutdown() {
 	system("shutdown /s /t 0");
 #elif defined(__linux__) || defined(__linux)
 	system("shutdown -h now");
+#endif
+}
+
+void ToggleMedia() {
+#if defined(_WIN32) || defined(_WIN64)
+	INPUT inputs[2] = {};
+
+	inputs[0].type = INPUT_KEYBOARD;
+	inputs[0].ki.wVk = VK_MEDIA_PLAY_PAUSE;
+	inputs[0].ki.dwFlags = KEYEVENTF_EXTENDEDKEY;
+
+	inputs[1].type = INPUT_KEYBOARD;
+	inputs[1].ki.wVk = VK_MEDIA_PLAY_PAUSE;
+	inputs[1].ki.dwFlags = KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP;
+
+	SendInput(2, inputs, sizeof(INPUT));
+#elif defined(__linux__) || defined(__linux)
+	system("playerctl play-pause");
 #endif
 }

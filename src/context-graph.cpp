@@ -97,6 +97,10 @@ void ContextGraph::TrainGraph(const std::string& file) {
 		std::vector<std::string_view> words = ParseString(line[1]);
 		for (size_t i = 0; i < words.size(); ++i) {
 			std::string word_str = std::string(words[i]);
+			if (!words_.contains(word_str)) {
+				words_.insert(word_str);
+			}
+
 			if (cur->childs.contains(word_str)) {
 				cur = cur->childs.at(word_str);
 			} else {
@@ -108,7 +112,8 @@ void ContextGraph::TrainGraph(const std::string& file) {
 				new_node->childs = NodeTree();
 				new_node->has_arg = line[2] == "arg";
 
-				cur->childs.emplace(std::move(word_str), new_node);
+				auto it = words_.find(word_str);
+				cur->childs.emplace(std::string_view(*it), new_node);
 				cur = new_node;
 			}
 		}
@@ -144,6 +149,9 @@ Request ContextGraph::ParsePhrase(const std::string& phrase) {
 		size_t end_tmp_1 = pos + mistake.first.size();
 		size_t end_tmp = str.find(' ', end_tmp_1);
 		size_t end = end_tmp == std::string::npos ? str.size() : end_tmp;
+		if (words_.contains(str.substr(start, end - start))) {
+			continue;
+		}
 
 		if (pos != std::string::npos) {
 			str.replace(start, end - start, mistake.second);
