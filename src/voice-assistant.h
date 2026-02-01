@@ -22,7 +22,7 @@ class VoiceAssistant {
  public:
 	static constexpr int VOL_LIMIT = 2000;
 	static constexpr int SAMPLE_RATE = 16000;
-	static constexpr double SPEAK_TIME = 0.5;
+	static constexpr double SPEAK_TIME = 1;
 	static constexpr int SPEAK_SAMPLES = SAMPLE_RATE * SPEAK_TIME;
 
 	explicit VoiceAssistant(const VoiceAssistantInit& va_init);

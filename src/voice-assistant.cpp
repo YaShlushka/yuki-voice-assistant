@@ -115,6 +115,12 @@ void VoiceAssistant::ExecRequest(const Request& req) const {
 	case RequestType::TOGGLE_MEDIA:
 		ToggleMedia();
 		break;
+	case RequestType::PREVIOUS_MEDIA:
+		PreviousMedia();
+		break;
+	case RequestType::NEXT_MEDIA:
+		NextMedia();
+		break;
 	case RequestType::UNKNOWN:
 		return;
 	}

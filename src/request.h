@@ -9,6 +9,8 @@ enum class RequestType {
 	SHUTDOWN,
 	STOP,
 	TOGGLE_MEDIA,
+	PREVIOUS_MEDIA,
+	NEXT_MEDIA,
 	UNKNOWN = INT_MAX
 };
 

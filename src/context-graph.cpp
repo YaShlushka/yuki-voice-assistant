@@ -85,6 +85,20 @@ CSV ReadCSV(const std::string& file) {
 	return result;
 }
 
+NodePtr MoveToChild(const NodePtr& cur, std::string_view word) {
+	if (auto it = cur->childs.find(word); it != cur->childs.end()) {
+		return it->second;
+	}
+
+	for (const auto& [key, node] : cur->childs) {
+		if (rapidfuzz::fuzz::ratio(key, word) >= ACCURANCY_PERCENT) {
+			return node;
+		}
+	}
+
+	return cur;
+}
+
 void ContextGraph::TrainGraph(const std::string& file) {
 	CSV lines = ReadCSV(file);
 	if (lines.empty()) {
@@ -165,26 +179,21 @@ Request ContextGraph::ParsePhrase(const std::string& phrase) {
 		std::cout << "\"" << word << "\"" << std::endl;
 	}
 
-	for (std::string_view word : words) {
-		std::string word_str = std::string(word);
-		if (cur->childs.contains(word_str)) {
-			cur = cur->childs.at(word_str);
-		} else {
-			for (const auto& pair : cur->childs) {
-				if (fuzz::ratio(pair.first, word_str) >= ACCURANCY_PERCENT) {
-					cur = cur->childs.at(pair.first);
-				}
-				break;
-			}
+	for (int i = 0; i < words.size(); ++i) {
+		std::string word = std::string(words[i]);
+		cur = MoveToChild(cur, word);
+	
+		if (cur->type != RequestType::UNKNOWN && !cur->childs.empty() && i + 1 < words.size()) {
+			cur = MoveToChild(cur, words[i + 1]);
 		}
 
 		if (cur->type != RequestType::UNKNOWN) {
 			req.type = cur->type;
 
 			if (cur->has_arg) {
-				size_t arg_start = str.find(word_str);
-				if (arg_start != std::string::npos && arg_start + word_str.size() + 1 < str.size()) {
-					req.arg = str.substr(arg_start + word_str.size() + 1);
+				size_t arg_start = str.find(word);
+				if (arg_start != std::string::npos && arg_start + word.size() + 1 < str.size()) {
+					req.arg = str.substr(arg_start + word.size() + 1);
 				} else {
 					req.arg = "";
 				}

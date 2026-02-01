@@ -80,3 +80,39 @@ void ToggleMedia() {
 	system("playerctl play-pause");
 #endif
 }
+
+void PreviousMedia() {
+#if defined(_WIN32) || defined(_WIN64)
+	INPUT inputs[2] = {};
+
+	inputs[0].type = INPUT_KEYBOARD;
+	inputs[0].ki.wVk = VK_MEDIA_PREV_TRACK;
+	inputs[0].ki.dwFlags = KEYEVENTF_EXTENDEDKEY;
+
+	inputs[1].type = INPUT_KEYBOARD;
+	inputs[1].ki.wVk = VK_MEDIA_PREV_TRACK;
+	inputs[1].ki.dwFlags = KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP;
+
+	SendInput(2, inputs, sizeof(INPUT));
+#elif defined(__linux__) || defined(__linux)
+	system("playerctl previous");
+#endif
+}
+
+void NextMedia() {
+#if defined(_WIN32) || defined(_WIN64)
+	INPUT inputs[2] = {};
+
+	inputs[0].type = INPUT_KEYBOARD;
+	inputs[0].ki.wVk = VK_MEDIA_NEXT_TRACK;
+	inputs[0].ki.dwFlags = KEYEVENTF_EXTENDEDKEY;
+
+	inputs[1].type = INPUT_KEYBOARD;
+	inputs[1].ki.wVk = VK_MEDIA_NEXT_TRACK;
+	inputs[1].ki.dwFlags = KEYEVENTF_EXTENDEDKEY | KEYEVENTF_KEYUP;
+
+	SendInput(2, inputs, sizeof(INPUT));
+#elif defined(__linux__) || defined(__linux)
+	system("playerctl next");
+#endif
+}

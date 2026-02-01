@@ -7,3 +7,5 @@ void OpenApplication(const std::string& name);
 void SearchOnTheInternet(const std::string& request);
 void Shutdown();
 void ToggleMedia();
+void PreviousMedia();
+void NextMedia();
