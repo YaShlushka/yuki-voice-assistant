@@ -28,9 +28,6 @@ void OpenWebSite(const std::string& url) {
 #if defined(_WIN32) || defined(_WIN64)
 	std::string command = "start " + url;
 	system(command.c_str());
-#elif defined(__APPLE__)
-	std::string command = "open " + url;
-	system(command.c_str());
 #elif defined(__linux__) || defined(__linux)
 	std::string command = "xdg-open \"" + url + "\"";
 	system(command.c_str());
@@ -40,8 +37,6 @@ void OpenWebSite(const std::string& url) {
 void OpenApplication(const std::string& name) {
 #if defined(_WIN32) || defined(_WIN64)
 	std::string command = "start " + name;
-#elif defined(__APPLE__)
-	std::string command = "open -a " + name;
 #elif defined(__linux__) || defined(__linux)
 	std::string command = name + " &";
 #endif
@@ -58,8 +53,6 @@ void SearchOnTheInternet(const std::string& request) {
 void Shutdown() {
 #if defined(_WIN32) || defined(_WIN64)
 	system("shutdown /s /t 0");
-#elif defined(__APPLE__)
-	system("shutdown -h now");
 #elif defined(__linux__) || defined(__linux)
 	system("shutdown -h now");
 #endif
