@@ -1,13 +1,18 @@
 cmake_minimum_required(VERSION 3.14)
 project(yuki-voice-assistant C CXX)
 
+set(CMAKE_CXX_STANDARD 20)
 set(BOOST_INCLUDE_LIBRARIES json locale)
 
-add_subdirectory(lib/catch2)
 add_subdirectory(lib/rapidfuzz)
 add_subdirectory(lib/boost EXCLUDE_FROM_ALL)
 
-set(CMAKE_CXX_STANDARD 20)
+find_package(Threads REQUIRED)
+find_library(vosk_lib 
+    NAMES vosk 
+    PATHS "${CMAKE_CURRENT_SOURCE_DIR}/dynamic-lib"
+    NO_DEFAULT_PATH
+)
 
 set(SOURCE_FILES
 	src/main.cpp
@@ -15,35 +20,26 @@ set(SOURCE_FILES
 	src/voice-assistant.cpp
 	src/common.cpp
 	lib/miniaudio/miniaudio.c
+	src/context-graph.h
+	src/context-graph.cpp
+	src/request.h
 )
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-add_library(context_graph_lib STATIC src/context-graph.h src/context-graph.cpp src/request.h)
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
-target_include_directories(context_graph_lib PRIVATE "lib" "lib/rapidfuzz")
-target_include_directories(${PROJECT_NAME} PRIVATE "lib")
-
-if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-	target_link_libraries(${PROJECT_NAME} PRIVATE dl pthread m)
-endif()
-
-if(CMAKE_SYSTEM_NAME MATCHES "^MINGW")
-	set(SYSTEM_LIBS -lstdc++)
-else()
-	set(SYSTEM_LIBS)
-endif()
-
-add_executable(rapidfuzz_check
-	tests/rapidfuzz_check.cpp
+target_include_directories(${PROJECT_NAME} PRIVATE 
+	"lib"
+	"lib/vosk-api/src"
 )
 
-add_executable(context_graph_tests
-	tests/context_graph_tests.cpp
+target_link_libraries(${PROJECT_NAME} PRIVATE
+	${vosk_lib}
+	rapidfuzz::rapidfuzz
+	Boost::json
+	Boost::locale
+	Threads::Threads
 )
 
-target_include_directories(rapidfuzz_check PRIVATE "lib" "lib/rapidfuzz")
-
-target_link_libraries(context_graph_lib Boost::locale)
-target_link_libraries(rapidfuzz_check rapidfuzz::rapidfuzz)
-target_link_libraries(context_graph_tests context_graph_lib Catch2::Catch2WithMain)
-target_link_libraries(${PROJECT_NAME} PRIVATE ${SYSTEM_LIBS} vosk rapidfuzz::rapidfuzz context_graph_lib Boost::json)
+if(UNIX AND NOT APPLE)
+    target_link_libraries(${PROJECT_NAME} PRIVATE dl m)
+endif()
