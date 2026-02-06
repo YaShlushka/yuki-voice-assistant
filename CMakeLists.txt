@@ -43,3 +43,11 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 if(UNIX AND NOT APPLE)
     target_link_libraries(${PROJECT_NAME} PRIVATE dl m)
 endif()
+
+if (WIN32)
+	add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy_if_different
+		"${CMAKE_CURRENT_SOURCE_DIR}/dynamic-lib/libvosk.dll"
+		"$<TARGET_FILE_DIR:${PROJECT_NAME}>"
+	)
+endif()

@@ -29,6 +29,7 @@ void SignalHandler(int) { StopProgram(); }
 } // namespace
 
 int main() {
+	std::setlocale(LC_ALL, "");
 	VoiceAssistantInit va_init;
 	std::ifstream settings_ifs("data/settings.json");
 	if (!settings_ifs) {

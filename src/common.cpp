@@ -2,7 +2,6 @@
 
 #if defined(_WIN32) || defined(_WIN64)
 #include <windows.h>
-#elif defined(__linux__) || defined(__linux)
 #endif
 
 static bool IsSupportedChar(unsigned char c) {
@@ -31,7 +30,7 @@ static std::string UrlEncode(std::string_view s) {
 
 void OpenWebSite(const std::string& url) {
 #if defined(_WIN32) || defined(_WIN64)
-	std::string command = "start " + url;
+	std::string command = "start \"\" \"" + url + "\"";
 	system(command.c_str());
 #elif defined(__linux__) || defined(__linux)
 	std::string command = "xdg-open \"" + url + "\"";
@@ -41,7 +40,7 @@ void OpenWebSite(const std::string& url) {
 
 void OpenApplication(const std::string& name) {
 #if defined(_WIN32) || defined(_WIN64)
-	std::string command = "start " + name;
+	std::string command = "start \"\" \"" + name + "\"";
 #elif defined(__linux__) || defined(__linux)
 	std::string command = name + " &";
 #endif
