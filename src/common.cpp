@@ -59,6 +59,38 @@ bool OpenDetached(const std::string& arg) {
 
 	return true;
 }
+
+enum class MediaConfigureType {
+	TOGGLE = 0,
+	PREVIOUS,
+	NEXT
+};
+
+bool ConfigureMedia(MediaConfigureType arg) {
+	pid_t pid = fork();
+	if (pid == 0) {
+		std::string command;
+		switch (arg) {
+			case MediaConfigureType::TOGGLE:
+				command = "play-pause";
+				break;
+			case MediaConfigureType::PREVIOUS:
+				command = "previous";
+				break;
+			case MediaConfigureType::NEXT:
+				command = "next";
+				break;
+		}
+
+		execlp("playerctl", "playerctl", command.c_str(), nullptr);
+		//!!! ДОБАВИТЬ ЛОГ ОШИБКИ xdg-open
+		exit(1);
+	} else if (pid < 0) {
+		//!!! ДОБАВИТЬ ЛОГ ОШИБКИ fork;
+	}
+
+	return true;
+}
 #endif
 
 static bool IsSupportedChar(unsigned char c) {
@@ -133,7 +165,7 @@ void ToggleMedia() {
 
 	SendInput(2, inputs, sizeof(INPUT));
 #elif defined(__linux__) || defined(__linux)
-	system("playerctl play-pause");
+	ConfigureMedia(MediaConfigureType::TOGGLE);
 #endif
 }
 
@@ -151,7 +183,7 @@ void PreviousMedia() {
 
 	SendInput(2, inputs, sizeof(INPUT));
 #elif defined(__linux__) || defined(__linux)
-	system("playerctl previous");
+	ConfigureMedia(MediaConfigureType::PREVIOUS);
 #endif
 }
 
@@ -169,6 +201,6 @@ void NextMedia() {
 
 	SendInput(2, inputs, sizeof(INPUT));
 #elif defined(__linux__) || defined(__linux)
-	system("playerctl next");
+	ConfigureMedia(MediaConfigureType::NEXT);
 #endif
 }
