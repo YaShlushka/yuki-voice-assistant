@@ -1,14 +1,63 @@
 #include "common.h"
-
+#include <iostream>
+#if defined(_WIN32) || defined(_WIN64)
 #include <codecvt>
 #include <locale>
-
-#if defined(_WIN32) || defined(_WIN64)
 #include <windows.h>
 
 std::wstring ConvertToWString(const std::string& str) {
 	std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> conv;
 	return conv.from_bytes(str);
+}
+#elif defined(__linux__) || defined(__linux)
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
+
+bool XdgOpen(const std::string& arg) {
+	pid_t pid = fork();
+	if (pid == 0) {
+		execlp("xdg-open", "xdg-open", arg.c_str(), nullptr);
+		//!!! ДОБАВИТЬ ЛОГ ОШИБКИ xdg-open
+		exit(1);
+	} else if (pid < 0) {
+		//!!! ДОБАВИТЬ ЛОГ ОШИБКИ fork;
+	}
+
+	return true;
+}
+
+bool OpenDetached(const std::string& arg) {
+	pid_t pid = fork();
+
+	if (pid == 0) {
+		if (setsid() < 0) {
+			_exit(1);
+		}
+
+		pid_t pid_2 = fork();
+
+		if (pid_2 > 0) {
+			_exit(0);
+		} else if (pid_2 < 0) {
+			_exit(1);
+		}
+
+		close(STDIN_FILENO);
+		close(STDOUT_FILENO);
+		close(STDERR_FILENO);
+
+		execlp(arg.c_str(), arg.c_str(), nullptr);
+
+		_exit(1);
+	} else if (pid < 0) {
+		// !!! добавить лог ошибки
+		return false;
+	}
+
+	waitpid(pid, nullptr, 0);
+
+	return true;
 }
 #endif
 
@@ -40,8 +89,7 @@ void OpenWebSite(const std::string& url) {
 #if defined(_WIN32) || defined(_WIN64)
 	ShellExecuteW(NULL, L"open", ConvertToWString(url).c_str(), NULL, NULL, SW_SHOWNORMAL);
 #elif defined(__linux__) || defined(__linux)
-	// std::string command = "xdg-open \"" + url + "\"";
-	system("xdg-open \"" + url + "\"");
+	XdgOpen(url);
 #endif
 }
 
@@ -50,7 +98,9 @@ void OpenApplication(const std::string& name) {
 	ShellExecuteW(NULL, L"open", ConvertToWString(name).c_str(), NULL, NULL, SW_SHOWNORMAL);
 #elif defined(__linux__) || defined(__linux)
 	// std::string command = name + " &";
-	system(name + " &");
+	// system(command.c_str());
+	std::cout << name << std::endl;
+	OpenDetached(name);
 #endif
 }
 

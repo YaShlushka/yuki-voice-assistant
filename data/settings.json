@@ -1,7 +1,7 @@
 {
-	"model": "models/vosk-model-small-ru-0.22",
+	"model": "models/vosk-model-ru-0.42",
 	"ctx_file": "data/context_training.csv",
 	"often_mistakes": "data/often_mistakes.csv",
 	"websites": "data/websites.json",
-	"applications": "data/applications-windows.json"
+	"applications": "data/applications.json"
 }
