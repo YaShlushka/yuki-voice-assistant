@@ -1,7 +1,15 @@
 #include "common.h"
 
+#include <codecvt>
+#include <locale>
+
 #if defined(_WIN32) || defined(_WIN64)
 #include <windows.h>
+
+std::wstring ConvertToWString(const std::string& str) {
+	std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> conv;
+	return conv.from_bytes(str);
+}
 #endif
 
 static bool IsSupportedChar(unsigned char c) {
@@ -30,21 +38,20 @@ static std::string UrlEncode(std::string_view s) {
 
 void OpenWebSite(const std::string& url) {
 #if defined(_WIN32) || defined(_WIN64)
-	std::string command = "start \"\" \"" + url + "\"";
-	system(command.c_str());
+	ShellExecuteW(NULL, L"open", ConvertToWString(url).c_str(), NULL, NULL, SW_SHOWNORMAL);
 #elif defined(__linux__) || defined(__linux)
-	std::string command = "xdg-open \"" + url + "\"";
-	system(command.c_str());
+	// std::string command = "xdg-open \"" + url + "\"";
+	system("xdg-open \"" + url + "\"");
 #endif
 }
 
 void OpenApplication(const std::string& name) {
 #if defined(_WIN32) || defined(_WIN64)
-	std::string command = "start \"\" \"" + name + "\"";
+	ShellExecuteW(NULL, L"open", ConvertToWString(name).c_str(), NULL, NULL, SW_SHOWNORMAL);
 #elif defined(__linux__) || defined(__linux)
-	std::string command = name + " &";
+	// std::string command = name + " &";
+	system(name + " &");
 #endif
-	system(command.c_str());
 }
 
 void SearchOnTheInternet(const std::string& request) {
