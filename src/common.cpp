@@ -60,26 +60,22 @@ bool OpenDetached(const std::string& arg) {
 	return true;
 }
 
-enum class MediaConfigureType {
-	TOGGLE = 0,
-	PREVIOUS,
-	NEXT
-};
+enum class MediaConfigureType { TOGGLE = 0, PREVIOUS, NEXT };
 
 bool ConfigureMedia(MediaConfigureType arg) {
 	pid_t pid = fork();
 	if (pid == 0) {
 		std::string command;
 		switch (arg) {
-			case MediaConfigureType::TOGGLE:
-				command = "play-pause";
-				break;
-			case MediaConfigureType::PREVIOUS:
-				command = "previous";
-				break;
-			case MediaConfigureType::NEXT:
-				command = "next";
-				break;
+		case MediaConfigureType::TOGGLE:
+			command = "play-pause";
+			break;
+		case MediaConfigureType::PREVIOUS:
+			command = "previous";
+			break;
+		case MediaConfigureType::NEXT:
+			command = "next";
+			break;
 		}
 
 		execlp("playerctl", "playerctl", command.c_str(), nullptr);

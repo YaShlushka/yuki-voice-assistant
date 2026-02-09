@@ -90,13 +90,17 @@ NodePtr MoveToChild(const NodePtr& cur, std::string_view word) {
 		return it->second;
 	}
 
+	NodePtr result = cur;
+	double max_percent = 0;
 	for (const auto& [key, node] : cur->childs) {
-		if (rapidfuzz::fuzz::ratio(key, word) >= ACCURANCY_PERCENT) {
-			return node;
+		double percent = rapidfuzz::fuzz::ratio(key, word);
+		if (percent >= ACCURANCY_PERCENT && percent > max_percent) {
+			result = node;
+			max_percent = percent;
 		}
 	}
 
-	return cur;
+	return result;
 }
 
 void ContextGraph::TrainGraph(const std::string& file) {
@@ -182,7 +186,7 @@ Request ContextGraph::ParsePhrase(const std::string& phrase) {
 	for (int i = 0; i < words.size(); ++i) {
 		std::string word = std::string(words[i]);
 		cur = MoveToChild(cur, word);
-	
+
 		if (cur->type != RequestType::UNKNOWN && !cur->childs.empty() && i + 1 < words.size()) {
 			cur = MoveToChild(cur, words[i + 1]);
 		}
