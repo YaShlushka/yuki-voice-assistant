@@ -1,8 +1,8 @@
 #pragma once
 
 #include <cstdint>
-#include <vector>
 #include <functional>
+#include <vector>
 
 #include "context-graph.h"
 #include "miniaudio/miniaudio.h"
@@ -15,11 +15,13 @@ struct VoiceAssistantInit {
 	std::string often_mistakes;
 	std::string websites_links;
 	std::string applications;
+	std::string scenarios;
 	std::function<void()> stop_callback;
 };
 
 class VoiceAssistant {
  public:
+	using Scenario = std::vector<Request>;
 	static constexpr int VOL_LIMIT = 2000;
 	static constexpr int SAMPLE_RATE = 16000;
 	static constexpr double SPEAK_TIME = 1;
@@ -32,6 +34,7 @@ class VoiceAssistant {
  private:
 	void ProcessAudio(const void* p_input, ma_uint32 frame_count);
 	void ExecRequest(const Request& req) const;
+	void ExecScenario(const Scenario& scn) const;
 	void OpenReq(const std::string& arg) const;
 	void SearchReq(const std::string& arg) const;
 	void ShutdownReq() const;
@@ -45,6 +48,7 @@ class VoiceAssistant {
 	bool is_processed_ = true;
 	std::unordered_map<std::string, std::string> websites_;
 	std::unordered_map<std::string, std::string> apps_;
+	std::vector<Scenario> scenarios_;
 	std::function<void()> stop_callback_;
 	Worker worker_;
 };

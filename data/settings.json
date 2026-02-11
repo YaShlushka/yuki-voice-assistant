@@ -3,5 +3,6 @@
 	"ctx_file": "data/context_training.csv",
 	"often_mistakes": "data/often_mistakes.csv",
 	"websites": "data/websites.json",
-	"applications": "data/applications.json"
+	"applications": "data/applications.json",
+	"scenarios": "data/scenarios.json"
 }

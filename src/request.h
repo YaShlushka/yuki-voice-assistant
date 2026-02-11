@@ -2,9 +2,11 @@
 
 #include <climits>
 #include <string>
+#include <optional>
 
 enum class RequestType {
-	OPEN = 0,
+	SCENARIO = 0,
+	OPEN,
 	WEB_SEARCH,
 	SHUTDOWN,
 	STOP,
@@ -17,4 +19,5 @@ enum class RequestType {
 struct Request {
 	RequestType type;
 	std::string arg;
+	std::optional<size_t> scenario_id;
 };

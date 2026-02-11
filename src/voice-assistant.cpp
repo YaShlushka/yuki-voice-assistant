@@ -13,26 +13,88 @@
 namespace fs = std::filesystem;
 namespace json = boost::json;
 
+std::vector<std::pair<std::string, VoiceAssistant::Scenario>> LoadScenarios(fs::path path) {
+	static auto has_arg = [](RequestType type) {
+		int type_int = static_cast<int>(type);
+		return type_int == 1 || type_int == 2;
+	};
+
+	std::vector<std::pair<std::string, VoiceAssistant::Scenario>> result;
+	std::ifstream ifs(path);
+	json::value scenarios_val = json::parse(ifs);
+	if (!scenarios_val.is_object()) {
+		std::cout << "ERROR: Scenarios aren't an object" << std::endl;
+		return {};
+	}
+
+	json::object scenarios = scenarios_val.as_object();
+	for (auto& [name, actions] : scenarios) {
+		if (!actions.is_array()) {
+			std::cout << "ERROR IN SCENARIOS FILE" << std::endl;
+			return {};
+		}
+
+		VoiceAssistant::Scenario scn;
+		for (auto& action : actions.as_array()) {
+			if (!action.is_array() || action.as_array().size() < 1) {
+				std::cout << "ERROR WHEN PARSING ACTIONS IN SCENARIOS" << std::endl;
+				return {};
+			}
+
+			auto& vec = action.as_array();
+			if (!vec.at(0).is_int64()) {
+				std::cout << "ERROR IN SCENARIOS FILE: command id isn't integer" << std::endl;
+				return {};
+			}
+
+			RequestType type = static_cast<RequestType>(vec.at(0).as_int64());
+			if (has_arg(type) && (vec.size() != 2 || !vec.at(1).is_string())) {
+				std::cout << "ERROR WHEN PARSING ACTIONS IN SCENARIOS" << std::endl;
+				return {};
+			}
+			Request req{.type = type,
+							.arg = has_arg(type) == true ? std::string(vec.at(1).as_string()) : ""};
+			scn.push_back(std::move(req));
+		}
+		result.push_back({std::move(name), std::move(scn)});
+	}
+
+	return result;
+}
+
 VoiceAssistant::VoiceAssistant(const VoiceAssistantInit& va_init)
 	 : recognizer_(va_init.model.c_str()) {
 	fs::path ctx_file(va_init.ctx_file);
 	fs::path often_mistakes(va_init.often_mistakes);
 	fs::path websites_links(va_init.websites_links);
+	fs::path scenarios_path(va_init.scenarios);
 
 	if (!fs::exists(ctx_file)) {
 		throw std::runtime_error("Context file does not exists");
 	}
 
 	if (!fs::exists(often_mistakes)) {
-		throw std::runtime_error("Context file does not exists");
+		std::cout << "Often mistakes file does not exists" << std::endl;
 	}
 
 	if (!fs::exists(websites_links)) {
-		throw std::runtime_error("File with websites links does not exists");
+		std::cout << "File with websites links does not exists" << std::endl;
+	}
+
+	if (!fs::exists(scenarios_path)) {
+		std::cout << "Scenarios file does not exists" << std::endl;
 	}
 
 	ctx_graph_.TrainGraph(va_init.ctx_file);
 	ctx_graph_.AddOftenMistakes(va_init.often_mistakes);
+
+	std::vector<std::pair<std::string, VoiceAssistant::Scenario>> scenarios =
+		 LoadScenarios(scenarios_path);
+
+	for (auto& scenario : scenarios) {
+		scenarios_.push_back(std::move(scenario.second));
+		ctx_graph_.AddPhrase(scenario.first, RequestType::SCENARIO, false, scenarios_.size() - 1);
+	}
 
 	std::ifstream websites_ifs(websites_links);
 	auto web_links_json = json::parse(websites_ifs);
@@ -100,6 +162,9 @@ void VoiceAssistant::ProcessAudio(const void* p_input, ma_uint32 frame_count) {
 
 void VoiceAssistant::ExecRequest(const Request& req) const {
 	switch (req.type) {
+	case RequestType::SCENARIO:
+		ExecScenario(scenarios_[*req.scenario_id]);
+		break;
 	case RequestType::OPEN:
 		OpenReq(req.arg);
 		break;
@@ -123,6 +188,12 @@ void VoiceAssistant::ExecRequest(const Request& req) const {
 		break;
 	case RequestType::UNKNOWN:
 		return;
+	}
+}
+
+void VoiceAssistant::ExecScenario(const Scenario& scn) const {
+	for (const Request& req : scn) {
+		ExecRequest(req);
 	}
 }
 

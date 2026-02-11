@@ -53,6 +53,9 @@ int main() {
 	if (settings_obj.contains("applications")) {
 		va_init.applications = settings_obj.at("applications").as_string();
 	}
+	if (settings_obj.contains("scenarios")) {
+		va_init.scenarios = settings_obj.at("scenarios").as_string();
+	}
 	if (va_init.model.empty() || va_init.ctx_file.empty()) {
 		return EXIT_FAILURE;
 	}

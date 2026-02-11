@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <unordered_map>
@@ -17,12 +18,15 @@ using NodeTree = std::unordered_map<std::string_view, NodePtr>;
 struct Node {
 	RequestType type = RequestType::UNKNOWN;
 	bool has_arg = false;
+	std::optional<size_t> scenario_id;
 
 	NodeTree childs;
 };
 
 class ContextGraph {
  public:
+	void AddPhrase(const std::string& phrase, RequestType type, bool has_arg,
+						std::optional<size_t> scenario_id = {});
 	void TrainGraph(const std::string& file);
 	void AddOftenMistakes(const std::string& file);
 	Request ParsePhrase(const std::string& str);

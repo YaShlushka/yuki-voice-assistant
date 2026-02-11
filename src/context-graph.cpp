@@ -103,6 +103,33 @@ NodePtr MoveToChild(const NodePtr& cur, std::string_view word) {
 	return result;
 }
 
+void ContextGraph::AddPhrase(const std::string& phrase, RequestType type, bool has_arg,
+									  std::optional<size_t> scenario_id) {
+	std::shared_ptr<Node> cur = graph_;
+	std::vector<std::string_view> words = ParseString(phrase);
+	for (size_t i = 0; i < words.size(); ++i) {
+		std::string word_str = std::string(words[i]);
+		if (!words_.contains(word_str)) {
+			words_.insert(word_str);
+		}
+
+		if (cur->childs.contains(word_str)) {
+			cur = cur->childs.at(word_str);
+		} else {
+			auto new_node = std::make_shared<Node>();
+			new_node->type = (i == (words.size() - 1)) ? (type) : (RequestType::UNKNOWN);
+
+			new_node->childs = NodeTree();
+			new_node->has_arg = has_arg;
+			new_node->scenario_id = scenario_id;
+
+			auto it = words_.find(word_str);
+			cur->childs.emplace(std::string_view(*it), new_node);
+			cur = new_node;
+		}
+	}
+}
+
 void ContextGraph::TrainGraph(const std::string& file) {
 	CSV lines = ReadCSV(file);
 	if (lines.empty()) {
@@ -112,29 +139,7 @@ void ContextGraph::TrainGraph(const std::string& file) {
 	for (const std::vector<std::string>& line : lines) {
 		assert(line.size() == 3);
 		std::shared_ptr<Node> cur = graph_;
-		std::vector<std::string_view> words = ParseString(line[1]);
-		for (size_t i = 0; i < words.size(); ++i) {
-			std::string word_str = std::string(words[i]);
-			if (!words_.contains(word_str)) {
-				words_.insert(word_str);
-			}
-
-			if (cur->childs.contains(word_str)) {
-				cur = cur->childs.at(word_str);
-			} else {
-				auto new_node = std::make_shared<Node>();
-				new_node->type = (i == (words.size() - 1))
-											? (static_cast<RequestType>(std::stoi(line[0])))
-											: (RequestType::UNKNOWN);
-
-				new_node->childs = NodeTree();
-				new_node->has_arg = line[2] == "arg";
-
-				auto it = words_.find(word_str);
-				cur->childs.emplace(std::string_view(*it), new_node);
-				cur = new_node;
-			}
-		}
+		AddPhrase(line[1], static_cast<RequestType>(std::stoi(line[0])), line[2] == "arg");
 	}
 }
 
@@ -193,6 +198,7 @@ Request ContextGraph::ParsePhrase(const std::string& phrase) {
 
 		if (cur->type != RequestType::UNKNOWN) {
 			req.type = cur->type;
+			req.scenario_id = cur->scenario_id;
 
 			if (cur->has_arg) {
 				size_t arg_start = str.find(word);
