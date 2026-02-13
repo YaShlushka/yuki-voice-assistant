@@ -13,6 +13,10 @@
 #include <iostream>
 #include <mutex>
 
+#if defined(_WIN32) || defined(_WIN64)
+#include <windows.h>
+#endif
+
 namespace json = boost::json;
 namespace logging = boost::log;
 
@@ -32,10 +36,12 @@ void SignalHandler(int) { StopProgram(); }
 } // namespace
 
 int main() {
+#if defined(_WIN32) || defined(_WIN64)
+	SetConsoleOutputCP(65001);
+#endif
 	logging::add_common_attributes();
-	auto console_sink =
-		 logging::add_console_log(std::cout, logging::keywords::format = &JsonFormatter,
-										  logging::keywords::auto_flush = true);
+	auto console_sink = logging::add_console_log(
+		 std::cout, logging::keywords::format = &JsonFormatter, logging::keywords::auto_flush = true);
 
 	VoiceAssistantInit va_init;
 	std::ifstream settings_ifs("data/settings.json");
