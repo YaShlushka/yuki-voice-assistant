@@ -232,16 +232,36 @@ void VoiceAssistant::OpenReq(const std::string& arg) const {
 		return;
 	}
 
-	for (const auto& app_pair : apps_) {
-		if (rapidfuzz::fuzz::ratio(arg, app_pair.first) >= ACCURANCY_PERCENT) {
-			OpenApplication(app_pair.second);
+	{
+		double max_percent = 0;
+		std::string res;
+		for (const auto& app_pair : apps_) {
+			double percent = rapidfuzz::fuzz::ratio(arg, app_pair.first);
+			if (percent >= ACCURANCY_PERCENT && percent > max_percent) {
+				res = app_pair.second;
+				max_percent = percent;
+			}
+		}
+
+		if (!res.empty()) {
+			OpenApplication(res);
 			return;
 		}
 	}
 
-	for (const auto& web_pair : websites_) {
-		if (rapidfuzz::fuzz::ratio(arg, web_pair.first) >= ACCURANCY_PERCENT) {
-			OpenWebSite(web_pair.second);
+	{
+		double max_percent = 0;
+		std::string res;
+		for (const auto& web_pair : websites_) {
+			double percent = rapidfuzz::fuzz::ratio(arg, web_pair.first);
+			if (percent >= ACCURANCY_PERCENT && percent > max_percent) {
+				res = web_pair.second;
+				max_percent = percent;
+			}
+		}
+
+		if (!res.empty()) {
+			OpenWebSite(res);
 			return;
 		}
 	}
