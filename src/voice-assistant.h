@@ -36,9 +36,6 @@ class VoiceAssistant {
 	void ExecRequest(const Request& req) const;
 	void ExecScenario(const Scenario& scn) const;
 	void OpenReq(const std::string& arg) const;
-	void SearchReq(const std::string& arg) const;
-	void ShutdownReq() const;
-	void StopReq() const;
 
 	RecognizeModel recognizer_;
 	ContextGraph ctx_graph_;

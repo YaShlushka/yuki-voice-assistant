@@ -193,13 +193,13 @@ void VoiceAssistant::ExecRequest(const Request& req) const {
 		OpenReq(req.arg);
 		break;
 	case RequestType::WEB_SEARCH:
-		SearchReq(req.arg);
+		SearchOnTheInternet(req.arg);
 		break;
 	case RequestType::SHUTDOWN:
-		ShutdownReq();
+		Shutdown();
 		break;
 	case RequestType::STOP:
-		StopReq();
+		stop_callback_();
 		break;
 	case RequestType::TOGGLE_MEDIA:
 		ToggleMedia();
@@ -246,9 +246,3 @@ void VoiceAssistant::OpenReq(const std::string& arg) const {
 		}
 	}
 }
-
-void VoiceAssistant::SearchReq(const std::string& arg) const { SearchOnTheInternet(arg); }
-
-void VoiceAssistant::ShutdownReq() const { Shutdown(); }
-
-void VoiceAssistant::StopReq() const { stop_callback_(); }
