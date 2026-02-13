@@ -1,5 +1,6 @@
 #include "common.h"
-#include <iostream>
+#include "logging.h"
+#include <boost/log/utility/manipulators/add_value.hpp>
 #if defined(_WIN32) || defined(_WIN64)
 #include <codecvt>
 #include <locale>
@@ -18,10 +19,12 @@ bool XdgOpen(const std::string& arg) {
 	pid_t pid = fork();
 	if (pid == 0) {
 		execlp("xdg-open", "xdg-open", arg.c_str(), nullptr);
-		//!!! ДОБАВИТЬ ЛОГ ОШИБКИ xdg-open
+		BOOST_LOG_TRIVIAL(error) << logging::add_value(where, "Open website")
+										 << "Failed to use xdg-open";
 		exit(1);
 	} else if (pid < 0) {
-		//!!! ДОБАВИТЬ ЛОГ ОШИБКИ fork;
+		BOOST_LOG_TRIVIAL(error) << logging::add_value(where, "Open website")
+										 << "Failed to fork process";
 	}
 
 	return true;
@@ -32,6 +35,8 @@ bool OpenDetached(const std::string& arg) {
 
 	if (pid == 0) {
 		if (setsid() < 0) {
+			BOOST_LOG_TRIVIAL(error) << logging::add_value(where, "Open application")
+											 << "Failed to create new session";
 			_exit(1);
 		}
 
@@ -40,6 +45,8 @@ bool OpenDetached(const std::string& arg) {
 		if (pid_2 > 0) {
 			_exit(0);
 		} else if (pid_2 < 0) {
+			BOOST_LOG_TRIVIAL(error) << logging::add_value(where, "Open application")
+											 << "Failed to fork process";
 			_exit(1);
 		}
 
@@ -51,7 +58,8 @@ bool OpenDetached(const std::string& arg) {
 
 		_exit(1);
 	} else if (pid < 0) {
-		// !!! добавить лог ошибки
+		BOOST_LOG_TRIVIAL(error) << logging::add_value(where, "Open application")
+										 << "Failed to fork process";
 		return false;
 	}
 
@@ -79,10 +87,12 @@ bool ConfigureMedia(MediaConfigureType arg) {
 		}
 
 		execlp("playerctl", "playerctl", command.c_str(), nullptr);
-		//!!! ДОБАВИТЬ ЛОГ ОШИБКИ xdg-open
+		BOOST_LOG_TRIVIAL(error) << logging::add_value(where, "Media toggle")
+										 << "Failed to use playerctl";
 		exit(1);
 	} else if (pid < 0) {
-		//!!! ДОБАВИТЬ ЛОГ ОШИБКИ fork;
+		BOOST_LOG_TRIVIAL(error) << logging::add_value(where, "Media toggle")
+										 << "Failed to fork process";
 	}
 
 	return true;
@@ -125,9 +135,6 @@ void OpenApplication(const std::string& name) {
 #if defined(_WIN32) || defined(_WIN64)
 	ShellExecuteW(NULL, L"open", ConvertToWString(name).c_str(), NULL, NULL, SW_SHOWNORMAL);
 #elif defined(__linux__) || defined(__linux)
-	// std::string command = name + " &";
-	// system(command.c_str());
-	std::cout << name << std::endl;
 	OpenDetached(name);
 #endif
 }

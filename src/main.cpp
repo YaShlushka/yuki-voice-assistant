@@ -1,7 +1,9 @@
+#include "logging.h"
 #include "miniaudio/miniaudio.h"
 #include "voice-assistant.h"
 
 #include <boost/json.hpp>
+#include <boost/log/utility/setup/common_attributes.hpp>
 
 #include <atomic>
 #include <condition_variable>
@@ -12,6 +14,7 @@
 #include <mutex>
 
 namespace json = boost::json;
+namespace logging = boost::log;
 
 namespace {
 
@@ -29,10 +32,15 @@ void SignalHandler(int) { StopProgram(); }
 } // namespace
 
 int main() {
-	std::setlocale(LC_ALL, "");
+	logging::add_common_attributes();
+	auto console_sink =
+		 logging::add_console_log(std::cout, logging::keywords::format = &JsonFormatter,
+										  logging::keywords::auto_flush = true);
+
 	VoiceAssistantInit va_init;
 	std::ifstream settings_ifs("data/settings.json");
 	if (!settings_ifs) {
+		BOOST_LOG_TRIVIAL(error) << "Failed to open data/settings.json";
 		return EXIT_FAILURE;
 	}
 
@@ -57,6 +65,7 @@ int main() {
 		va_init.scenarios = settings_obj.at("scenarios").as_string();
 	}
 	if (va_init.model.empty() || va_init.ctx_file.empty()) {
+		BOOST_LOG_TRIVIAL(error) << "model of context file paths in setting.json are empty";
 		return EXIT_FAILURE;
 	}
 	va_init.stop_callback = StopProgram;
@@ -84,13 +93,15 @@ int main() {
 	std::signal(SIGINT, SignalHandler);
 	std::signal(SIGTERM, SignalHandler);
 
-	std::cout << "START" << std::endl;
+	BOOST_LOG_TRIVIAL(info) << "Program loaded successfully";
 
 	std::unique_lock<std::mutex> thread_lock(MTX);
 	CV.wait(thread_lock, [] { return STOP_REQUESTED.load(std::memory_order_relaxed); });
 
 	ma_device_stop(&device);
 	ma_device_uninit(&device);
+
+	BOOST_LOG_TRIVIAL(info) << "Program was completed successfully";
 
 	return EXIT_SUCCESS;
 }

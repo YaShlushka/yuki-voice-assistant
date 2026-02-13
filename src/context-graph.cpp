@@ -1,7 +1,10 @@
 #include "context-graph.h"
+#include "logging.h"
 #include "request.h"
 
 #include <boost/locale.hpp>
+#include <boost/log/trivial.hpp>
+#include <boost/log/utility/manipulators/add_value.hpp>
 #include <rapidfuzz/rapidfuzz/fuzz.hpp>
 
 #include <cassert>
@@ -133,11 +136,18 @@ void ContextGraph::AddPhrase(const std::string& phrase, RequestType type, bool h
 void ContextGraph::TrainGraph(const std::string& file) {
 	CSV lines = ReadCSV(file);
 	if (lines.empty()) {
+		BOOST_LOG_TRIVIAL(error) << logging::add_value(where, "ContextGraph")
+										 << "Context training file is empty";
 		throw std::runtime_error("Error reading training csv file");
 	}
 
 	for (const std::vector<std::string>& line : lines) {
 		assert(line.size() == 3);
+		if (line.size() != 3) {
+			BOOST_LOG_TRIVIAL(error) << logging::add_value(where, "ContextGraph")
+											 << "Not all 3 columns in the context training file are filled";
+			continue;
+		}
 		std::shared_ptr<Node> cur = graph_;
 		AddPhrase(line[1], static_cast<RequestType>(std::stoi(line[0])), line[2] == "arg");
 	}
@@ -146,7 +156,11 @@ void ContextGraph::TrainGraph(const std::string& file) {
 void ContextGraph::AddOftenMistakes(const std::string& file) {
 	CSV mistakes = ReadCSV(file);
 	for (const CSVLine& line : mistakes) {
-		assert(line.size() == 2);
+		if (line.size() != 2) {
+			BOOST_LOG_TRIVIAL(error) << logging::add_value(where, "ContextGraph")
+											 << "Not all 2 columns in the often mistakes file are filled";
+			continue;
+		}
 		often_mistakes_.insert({line[0], line[1]});
 	}
 }
@@ -184,9 +198,12 @@ Request ContextGraph::ParsePhrase(const std::string& phrase) {
 	std::vector<std::string_view> words = ParseString(str);
 	std::shared_ptr<Node> cur = graph_;
 
-	for (std::string_view word : words) {
-		std::cout << "\"" << word << "\"" << std::endl;
+	std::string log_str;
+	for (size_t i = 0; i < words.size(); ++i) {
+		log_str += words[i];
+		log_str += i == words.size() - 1 ? "" : " ";
 	}
+	BOOST_LOG_TRIVIAL(info) << "Processed string in ContextGraph: " + std::move(log_str);
 
 	for (int i = 0; i < words.size(); ++i) {
 		std::string word = std::string(words[i]);

@@ -1,14 +1,15 @@
 #include "voice-assistant.h"
 #include "common.h"
 #include "context-graph.h"
+#include "logging.h"
 #include "request.h"
 
 #include <boost/json.hpp>
+#include <boost/log/utility/manipulators/add_value.hpp>
 #include <rapidfuzz/rapidfuzz/fuzz.hpp>
 
 #include <filesystem>
 #include <fstream>
-#include <iostream>
 
 namespace fs = std::filesystem;
 namespace json = boost::json;
@@ -23,33 +24,39 @@ std::vector<std::pair<std::string, VoiceAssistant::Scenario>> LoadScenarios(fs::
 	std::ifstream ifs(path);
 	json::value scenarios_val = json::parse(ifs);
 	if (!scenarios_val.is_object()) {
-		std::cout << "ERROR: Scenarios aren't an object" << std::endl;
+		BOOST_LOG_TRIVIAL(error) << logging::add_value(where, "VoiceAssistant init")
+										 << "Scenarios must be json object";
 		return {};
 	}
 
 	json::object scenarios = scenarios_val.as_object();
 	for (auto& [name, actions] : scenarios) {
 		if (!actions.is_array()) {
-			std::cout << "ERROR IN SCENARIOS FILE" << std::endl;
+			BOOST_LOG_TRIVIAL(error) << logging::add_value(where, "VoiceAssistant init")
+											 << "Actions for scenario must be array";
 			return {};
 		}
 
 		VoiceAssistant::Scenario scn;
 		for (auto& action : actions.as_array()) {
 			if (!action.is_array() || action.as_array().size() < 1) {
-				std::cout << "ERROR WHEN PARSING ACTIONS IN SCENARIOS" << std::endl;
+				BOOST_LOG_TRIVIAL(error) << logging::add_value(where, "VoiceAssistant init")
+												 << "Action in actions array must be array";
 				return {};
 			}
 
 			auto& vec = action.as_array();
 			if (!vec.at(0).is_int64()) {
-				std::cout << "ERROR IN SCENARIOS FILE: command id isn't integer" << std::endl;
+				BOOST_LOG_TRIVIAL(error) << logging::add_value(where, "VoiceAssistant init")
+												 << "Command id in action must be integer";
 				return {};
 			}
 
 			RequestType type = static_cast<RequestType>(vec.at(0).as_int64());
 			if (has_arg(type) && (vec.size() != 2 || !vec.at(1).is_string())) {
-				std::cout << "ERROR WHEN PARSING ACTIONS IN SCENARIOS" << std::endl;
+				BOOST_LOG_TRIVIAL(error)
+					 << logging::add_value(where, "VoiceAssistant init")
+					 << "Error parsing argument for command: the argument is missing or not string";
 				return {};
 			}
 			Request req{.type = type,
@@ -70,19 +77,19 @@ VoiceAssistant::VoiceAssistant(const VoiceAssistantInit& va_init)
 	fs::path scenarios_path(va_init.scenarios);
 
 	if (!fs::exists(ctx_file)) {
-		throw std::runtime_error("Context file does not exists");
+		throw std::runtime_error(va_init.ctx_file + " does not exists");
 	}
 
 	if (!fs::exists(often_mistakes)) {
-		std::cout << "Often mistakes file does not exists" << std::endl;
+		BOOST_LOG_TRIVIAL(warning) << va_init.often_mistakes + " does not exists";
 	}
 
 	if (!fs::exists(websites_links)) {
-		std::cout << "File with websites links does not exists" << std::endl;
+		BOOST_LOG_TRIVIAL(warning) << va_init.websites_links + " does not exists";
 	}
 
 	if (!fs::exists(scenarios_path)) {
-		std::cout << "Scenarios file does not exists" << std::endl;
+		BOOST_LOG_TRIVIAL(warning) << va_init.scenarios + " does not exists";
 	}
 
 	ctx_graph_.TrainGraph(va_init.ctx_file);
@@ -103,7 +110,8 @@ VoiceAssistant::VoiceAssistant(const VoiceAssistantInit& va_init)
 			websites_[key] = value.as_string();
 		}
 	} else {
-		throw std::runtime_error("Websites links root is not a dictionary");
+		BOOST_LOG_TRIVIAL(error) << logging::add_value(where, "VoiceAssistant init")
+										 << va_init.websites_links + " root is not a dictionary";
 	}
 
 	fs::path apps_path = va_init.applications;
@@ -115,7 +123,8 @@ VoiceAssistant::VoiceAssistant(const VoiceAssistantInit& va_init)
 			apps_[key] = value.as_string();
 		}
 	} else {
-		throw std::runtime_error("applications.json root is not a dictionary");
+		BOOST_LOG_TRIVIAL(error) << logging::add_value(where, "VoiceAssistant init")
+										 << va_init.applications + " root is not a dictionary";
 	}
 
 	stop_callback_ = va_init.stop_callback;
@@ -148,9 +157,10 @@ void VoiceAssistant::ProcessAudio(const void* p_input, ma_uint32 frame_count) {
 	}
 
 	if (!is_speak_ && !is_processed_) {
+		BOOST_LOG_TRIVIAL(info) << "Adding request to queue for processing";
 		worker_.AddTask([this, audio_buffer = std::move(audio_buffer_)] {
 			std::string req_str = recognizer_.RecognizeAudio(std::move(audio_buffer));
-			std::cout << req_str << std::endl;
+			BOOST_LOG_TRIVIAL(info) << "Audio recognized: " + req_str;
 			Request req = ctx_graph_.ParsePhrase(req_str);
 			ExecRequest(req);
 		});
@@ -161,6 +171,20 @@ void VoiceAssistant::ProcessAudio(const void* p_input, ma_uint32 frame_count) {
 }
 
 void VoiceAssistant::ExecRequest(const Request& req) const {
+	std::string type = GetRequestTypeString(req.type);
+	std::string arg = req.arg;
+	std::optional<size_t> scn_id = req.scenario_id;
+
+	if (!arg.empty()) {
+		BOOST_LOG_TRIVIAL(info) << logging::add_value(request_type, type)
+										<< logging::add_value(request_arg, req.arg);
+	} else if (scn_id) {
+		BOOST_LOG_TRIVIAL(info) << logging::add_value(request_type, type)
+										<< logging::add_value(scenario_id, *scn_id);
+	} else {
+		BOOST_LOG_TRIVIAL(info) << logging::add_value(request_type, type);
+	}
+
 	switch (req.type) {
 	case RequestType::SCENARIO:
 		ExecScenario(scenarios_[*req.scenario_id]);

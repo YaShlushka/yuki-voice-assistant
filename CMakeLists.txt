@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.14)
 project(yuki-voice-assistant C CXX)
 
 set(CMAKE_CXX_STANDARD 20)
-set(BOOST_INCLUDE_LIBRARIES json locale)
+set(BOOST_INCLUDE_LIBRARIES json locale log)
 
 add_subdirectory(lib/rapidfuzz)
 add_subdirectory(lib/boost EXCLUDE_FROM_ALL)
@@ -37,6 +37,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 	rapidfuzz::rapidfuzz
 	Boost::json
 	Boost::locale
+	Boost::log
 	Threads::Threads
 )
 

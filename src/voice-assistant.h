@@ -43,7 +43,7 @@ class VoiceAssistant {
 	RecognizeModel recognizer_;
 	ContextGraph ctx_graph_;
 	std::vector<int16_t> audio_buffer_;
-	uint16_t last_speak_time_ = 5001;
+	uint32_t last_speak_time_ = SPEAK_SAMPLES + 1;
 	bool is_speak_ = false;
 	bool is_processed_ = true;
 	std::unordered_map<std::string, std::string> websites_;
